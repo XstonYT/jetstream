@@ -1,1785 +1,1786 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JetStream - Elite Aviation Database</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="https://d3js.org/d3-geo.v3.min.js"></script>
-<script src="https://d3js.org/d3-zoom.v3.min.js"></script>
-<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
-<style>
-body {
-font-family: 'Inter', sans-serif;
-background-color: #1a202c; /* Darker background for military theme */
-color: #e2e8f0; /* Lighter text for contrast */
-line-height: 1.6;
-}
-h1, h2, h3, h4 {
-font-family: 'Orbitron', sans-serif; /* Techy font for headings */
-color: #63b3ed; /* Lighter blue for headings */
-}
-.container {
-max-width: 1200px;
-margin: 0 auto;
-padding: 2rem;
-}
-.card {
-background-color: #2d3748; /* Darker card background */
-border-radius: 0.75rem; /* rounded-xl */
-box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Stronger, darker shadow */
-padding: 1.5rem;
-margin-bottom: 1.5rem;
-transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
-border: 1px solid #4a5568; /* Subtle border */
-}
-.card:hover {
-transform: translateY(-5px);
-box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
-border-color: #63b3ed; /* Highlight border on hover */
-}
-.table-header {
-background-color: #4a5568; /* Darker gray for table headers */
-font-weight: 600;
-color: #cbd5e0; /* Lighter text for headers */
-}
-.table-row:nth-child(even) {
-background-color: #2d3748; /* Same as card background for consistency */
-}
-.table-row:nth-child(odd) {
-background-color: #1a202c; /* Even darker for odd rows */
-}
-td, th {
-border-color: #4a5568; /* Darker border for table cells */
-}
-/* Custom scrollbar for comparison table */
-#comparisonTableContainer {
-overflow-x: auto;
--webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-}
-#comparisonTableContainer::-webkit-scrollbar {
-height: 8px;
-}
-#comparisonTableContainer::-webkit-scrollbar-track {
-background: #2d3748;
-border-radius: 10px;
-}
-#comparisonTableContainer::-webkit-scrollbar-thumb {
-background: #63b3ed; /* Blue for scrollbar thumb */
-border-radius: 10px;
-}
-#comparisonTableContainer::-webkit-scrollbar-thumb:hover {
-background: #4299e1; /* Darker blue on hover */
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JetStream - Elite Aviation Database</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/d3-geo.v3.min.js"></script>
+    <script src="https://d3js.org/d3-zoom.v3.min.js"></script>
+    <script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Darker background for military theme */
+            color: #e2e8f0; /* Lighter text for contrast */
+            line-height: 1.6;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Orbitron', sans-serif; /* Techy font for headings */
+            color: #63b3ed; /* Lighter blue for headings */
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .card {
+            background-color: #2d3748; /* Darker card background */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Stronger, darker shadow */
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
+            border: 1px solid #4a5568; /* Subtle border */
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+            border-color: #63b3ed; /* Highlight border on hover */
+        }
+        .table-header {
+            background-color: #4a5568; /* Darker gray for table headers */
+            font-weight: 600;
+            color: #cbd5e0; /* Lighter text for headers */
+        }
+        .table-row:nth-child(even) {
+            background-color: #2d3748; /* Same as card background for consistency */
+        }
+        .table-row:nth-child(odd) {
+            background-color: #1a202c; /* Even darker for odd rows */
+        }
+        td, th {
+            border-color: #4a5568; /* Darker border for table cells */
+        }
+        /* Custom scrollbar for comparison table */
+        #comparisonTableContainer {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+        #comparisonTableContainer::-webkit-scrollbar {
+            height: 8px;
+        }
+        #comparisonTableContainer::-webkit-scrollbar-track {
+            background: #2d3748;
+            border-radius: 10px;
+        }
+        #comparisonTableContainer::-webkit-scrollbar-thumb {
+            background: #63b3ed; /* Blue for scrollbar thumb */
+            border-radius: 10px;
+        }
+        #comparisonTableContainer::-webkit-scrollbar-thumb:hover {
+            background: #4299e1; /* Darker blue on hover */
+        }
 
-/* D3 Chart Styling */
-.chart-container {
-background-color: #2d3748; /* Darker background */
-border-radius: 0.75rem;
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-padding: 1.5rem;
-margin-top: 2rem;
-overflow-x: auto; /* Allow horizontal scroll if bars are too many/wide */
-border: 1px solid #4a5568;
-}
-.chart-title {
-font-family: 'Orbitron', sans-serif;
-font-size: 1.5rem;
-font-weight: 700;
-color: #63b3ed; /* Blue-800 */
-margin-bottom: 1rem;
-text-align: center;
-}
-.bar {
-fill: #63b3ed; /* Blue-500 */
-transition: fill 0.3s ease-in-out;
-}
-.bar:hover {
-fill: #4299e1; /* Darker blue on hover */
-}
-.axis text {
-font-size: 0.85rem;
-fill: #cbd5e0; /* Lighter gray for axis text */
-}
-.axis path, .axis line {
-stroke: #4a5568; /* Darker gray for axis lines */
-}
-.grid line {
-stroke: #4a5568; /* Darker gray for grid lines */
-stroke-opacity: 0.7;
-shape-rendering: crispEdges;
-}
-.value-label {
-font-size: 0.8rem;
-fill: #ffffff; /* Changed to white for better visibility */
-text-anchor: middle;
-font-weight: bold;
-}
-.tooltip {
-position: absolute;
-text-align: center;
-padding: 8px;
-background: rgba(0, 0, 0, 0.8);
-color: #cbd5e0;
-border-radius: 4px;
-pointer-events: none;
-font-size: 0.9rem;
-opacity: 0;
-transition: opacity 0.2s;
-z-index: 1000; /* Ensure tooltip is on top */
-border: 1px solid #63b3ed;
-}
-/* Loading spinner */
-.loader {
-border: 4px solid #f3f3f3;
-border-top: 4px solid #63b3ed; /* Blue spinner */
-border-radius: 50%;
-width: 24px;
-height: 24px;
-animation: spin 1s linear infinite;
-display: inline-block;
-vertical-align: middle;
-margin-left: 8px;
-}
-@keyframes spin {
-0% { transform: rotate(0deg); }
-100% { transform: rotate(360deg); }
-}
+        /* D3 Chart Styling */
+        .chart-container {
+            background-color: #2d3748; /* Darker background */
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            margin-top: 2rem;
+            overflow-x: auto; /* Allow horizontal scroll if bars are too many/wide */
+            border: 1px solid #4a5568;
+        }
+        .chart-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #63b3ed; /* Blue-800 */
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .bar {
+            fill: #63b3ed; /* Blue-500 */
+            transition: fill 0.3s ease-in-out;
+        }
+        .bar:hover {
+            fill: #4299e1; /* Darker blue on hover */
+        }
+        .axis text {
+            font-size: 0.85rem;
+            fill: #cbd5e0; /* Lighter gray for axis text */
+        }
+        .axis path, .axis line {
+            stroke: #4a5568; /* Darker gray for axis lines */
+        }
+        .grid line {
+            stroke: #4a5568; /* Darker gray for grid lines */
+            stroke-opacity: 0.7;
+            shape-rendering: crispEdges;
+        }
+        .value-label {
+            font-size: 0.8rem;
+            fill: #ffffff; /* Changed to white for better visibility */
+            text-anchor: middle;
+            font-weight: bold;
+        }
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #cbd5e0;
+            border-radius: 4px;
+            pointer-events: none;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 1000; /* Ensure tooltip is on top */
+            border: 1px solid #63b3ed;
+        }
+        /* Loading spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #63b3ed; /* Blue spinner */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-/* Map specific styles */
-#rangeMapContainer {
-background-color: #2d3748;
-border: 1px solid #4a5568;
-border-radius: 0.75rem;
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-padding: 1.5rem;
-margin-top: 2rem;
-display: flex;
-flex-direction: column;
-align-items: center;
-}
-#rangeMap {
-background-color: #1a202c; /* Dark background for map */
-border-radius: 0.5rem;
-border: 1px solid #4a5568;
-}
-.country {
-fill: #4a5568; /* Darker country fill */
-stroke: #2d3748; /* Darker country border */
-stroke-width: 0.5px;
-}
-.range-circle {
-fill: #63b3ed; /* Blue for range circles */
-fill-opacity: 0.3;
-stroke: #63b3ed;
-stroke-width: 1px;
-}
-.map-label {
-font-size: 0.7rem;
-fill: #cbd5e0;
-text-anchor: middle;
-pointer-events: none;
-}
-.map-center-dot {
-fill: #fc8181; /* Red dot for origin */
-stroke: #e53e3e;
-stroke-width: 1px;
-}
-/* Custom class for Orbitron font on navigation links */
-.nav-link-orbitron {
-font-family: 'Orbitron', sans-serif;
-}
-/* New section for ratings display */
-.ratings-display-container {
-background-color: #2d3748;
-border-radius: 0.75rem;
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-padding: 1.5rem;
-margin-top: 2rem;
-border: 1px solid #4a5568;
-}
-.rating-item {
-display: flex;
-justify-content: space-between;
-padding: 0.5rem 0;
-border-bottom: 1px dashed #4a5568;
-}
-.rating-item:last-child {
-border-bottom: none;
-}
-.rating-legend {
-margin-top: 1.5rem;
-padding-top: 1rem;
-border-top: 1px solid #4a5568;
-}
-</style>
+        /* Map specific styles */
+        #rangeMapContainer {
+            background-color: #2d3748;
+            border: 1px solid #4a5568;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #rangeMap {
+            background-color: #1a202c; /* Dark background for map */
+            border-radius: 0.5rem;
+            border: 1px solid #4a5568;
+        }
+        .country {
+            fill: #4a5568; /* Darker country fill */
+            stroke: #2d3748; /* Darker country border */
+            stroke-width: 0.5px;
+        }
+        .range-circle {
+            fill: #63b3ed; /* Blue for range circles */
+            fill-opacity: 0.3;
+            stroke: #63b3ed;
+            stroke-width: 1px;
+        }
+        .map-label {
+            font-size: 0.7rem;
+            fill: #cbd5e0;
+            text-anchor: middle;
+            pointer-events: none;
+        }
+        .map-center-dot {
+            fill: #fc8181; /* Red dot for origin */
+            stroke: #e53e3e;
+            stroke-width: 1px;
+        }
+        /* Custom class for Orbitron font on navigation links */
+        .nav-link-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        /* New section for ratings display */
+        .ratings-display-container {
+            background-color: #2d3748;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border: 1px solid #4a5568;
+        }
+        .rating-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #4a5568;
+        }
+        .rating-item:last-child {
+            border-bottom: none;
+        }
+        .rating-legend {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #4a5568;
+        }
+    </style>
 </head>
 <body class="antialiased">
 
-<header class="bg-gradient-to-r from-gray-900 to-gray-700 text-white py-6 shadow-lg rounded-b-xl border-b-2 border-blue-600">
-<div class="container flex flex-col md:flex-row items-center justify-between">
-<h1 class="text-4xl font-extrabold mb-4 md:mb-0 text-blue-400">JETSTREAM <span class="text-xl text-gray-400">// ELITE AVIATION DATABASE</span></h1>
-<nav>
-<ul class="flex flex-wrap justify-center space-x-4 md:space-x-6 text-lg">
-<li><a href="#current-jets" class="hover:text-blue-400 transition duration-300 nav-link-orbitron">MODERN JETS</a></li>
-<li><a href="#historical-jets" class="hover:text-blue-400 transition duration-300 nav-link-orbitron">LEGACY JETS</a></li>
-<li><a href="#future-jets" class="hover:text-blue-400 transition duration-300 nav-link-orbitron">FUTURE CONCEPTS</a></li>
-<li><a href="#comparison" class="hover:text-blue-400 transition duration-300 nav-link-orbitron">TACTICAL OVERVIEW</a></li>
-</ul>
-</nav>
-</div>
-</header>
-
-<section class="bg-gray-800 text-white py-20 text-center rounded-xl mx-auto my-8 shadow-lg max-w-5xl animate-fade-in border-2 border-blue-600">
-<div class="container">
-<h2 class="text-5xl font-bold mb-6 text-blue-400">ACCESS CLASSIFIED AVIATION DATA</h2>
-<p class="text-xl leading-relaxed mb-8 text-gray-300">Analyze advanced combat platforms, historical marvels, and strategic bombers. Utilize our comprehensive database for threat assessment and operational planning.</p>
-<a href="#comparison" class="bg-blue-600 text-white hover:bg-blue-700 px-8 py-4 rounded-full text-lg font-semibold shadow-md transition duration-300 transform hover:scale-105 border border-blue-400">INITIATE COMPARISON PROTOCOL</a>
-</div>
-</section>
-
-<main class="container">
-
-<section id="current-jets" class="py-12">
-<h3 class="text-4xl font-bold text-center mb-10 text-blue-400 font-orbitron">MODERN JET FLEET</h3>
-<div class="mb-6 flex flex-col sm:flex-row justify-end items-end sm:items-center">
-<label for="modernJetDecadeFilter" class="block text-gray-400 text-sm font-bold mr-2 mb-2 sm:mb-0">FILTER BY DECADE:</label>
-<select id="modernJetDecadeFilter" class="shadow border border-gray-600 bg-gray-700 text-gray-200 rounded-lg py-1 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 w-full sm:w-auto">
-<option value="all">ALL DECADES</option>
-</select>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-</div>
-</section>
-
-<section id="historical-jets" class="py-12">
-<h3 class="text-4xl font-bold text-center mb-10 text-blue-400 font-orbitron">LEGACY JET ARCHIVE</h3>
-<div class="mb-6 flex flex-col sm:flex-row justify-end items-end sm:items-center">
-<label for="legacyJetDecadeFilter" class="block text-gray-400 text-sm font-bold mr-2 mb-2 sm:mb-0">FILTER BY DECADE:</label>
-<select id="legacyJetDecadeFilter" class="shadow border border-gray-600 bg-gray-700 text-gray-200 rounded-lg py-1 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 w-full sm:w-auto">
-<option value="all">ALL DECADES</option>
-</select>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-</div>
-</section>
-
-<section id="future-jets" class="py-12">
-<h3 class="text-4xl font-bold text-center mb-10 text-blue-400 font-orbitron">FUTURE CONCEPTS & PROTOTYPES</h3>
-<div class="mb-6 flex flex-col sm:flex-row justify-end items-end sm:items-center">
-<label for="futureJetDecadeFilter" class="block text-gray-400 text-sm font-bold mr-2 mb-2 sm:mb-0">FILTER BY DECADE:</label>
-<select id="futureJetDecadeFilter" class="shadow border border-gray-600 bg-gray-700 text-gray-200 rounded-lg py-1 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 w-full sm:w-auto">
-<option value="all">ALL DECADES</option>
-</select>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-</div>
-</section>
-
-<section id="comparison" class="py-12">
-<h3 class="text-4xl font-bold text-center mb-10 text-blue-400 font-orbitron">TACTICAL PERFORMANCE OVERVIEW</h3>
-
-<div class="card p-6">
-<p class="text-lg mb-4 text-gray-300">SELECT UP TO 3 AIRCRAFT FOR DETAILED ANALYSIS:</p>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-<div>
-<label for="jetSelect1" class="block text-gray-400 text-sm font-bold mb-2">TARGET 1:</label>
-<select id="jetSelect1" class="shadow border border-gray-600 bg-gray-700 text-gray-200 rounded-lg w-full py-2 px-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
-<option value="">-- SELECT ASSET --</option>
-</select>
-</div>
-<div>
-<label for="jetSelect2" class="block text-gray-400 text-sm font-bold mb-2">TARGET 2:</label>
-<select id="jetSelect2" class="shadow border border-gray-600 bg-gray-700 text-gray-200 rounded-lg w-full py-2 px-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
-<option value="">-- SELECT ASSET --</option>
-</select>
-</div>
-<div>
-<label for="jetSelect3" class="block text-gray-400 text-sm font-bold mb-2">TARGET 3:</label>
-<select id="jetSelect3" class="shadow border border-gray-600 bg-gray-700 text-gray-200 rounded-lg w-full py-2 px-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
-<option value="">-- SELECT ASSET --</option>
-</select>
-</div>
-</div>
-<div class="flex flex-col sm:flex-row gap-4">
-<button id="compareButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105 w-full sm:w-auto border border-blue-400">
-INITIATE COMPARISON
-</button>
-<button id="summarizeButton" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105 w-full sm:w-auto flex items-center justify-center">
-✨ GENERATE INTELLIGENCE BRIEF
-<span id="summarizeLoader" class="loader hidden"></span>
-</button>
-</div>
-
-
-<div id="selectedJetImages" class="flex flex-wrap justify-center gap-4 mt-8">
-</div>
-
-<div id="comparisonTableContainer" class="mt-8 relative">
-<table id="comparisonTable" class="min-w-full bg-gray-800 border border-gray-600 rounded-lg overflow-hidden text-gray-200">
-<thead>
-<tr>
-<th class="py-3 px-4 text-left border-b border-gray-600 table-header rounded-tl-lg">PARAMETER</th>
-<th id="headerCol1" class="py-3 px-4 text-left border-b border-gray-600 table-header"></th>
-<th id="headerCol2" class="py-3 px-4 text-left border-b border-gray-600 table-header"></th>
-<th id="headerCol3" class="py-3 px-4 text-left border-b border-gray-600 table-header"></th>
-</tr>
-</thead>
-<tbody id="comparisonTableBody">
-<tr><td colspan="4" class="text-center py-8 text-gray-500">SELECT ASSETS FOR ANALYSIS.</td></tr>
-</tbody>
-</table>
-</div>
-
-<div id="summarySection" class="mt-8 p-6 bg-gray-700 border border-blue-600 rounded-lg shadow-inner hidden">
-<h4 class="text-2xl font-bold text-blue-400 mb-4">INTELLIGENCE BRIEFING:</h4>
-<div id="generatedSummary" class="text-gray-300 leading-relaxed">
-</div>
-</div>
-
-<div id="assetRatingsSection" class="ratings-display-container">
-<h4 class="chart-title">ASSET CAPABILITY RATINGS</h4>
-<div id="ratingsList" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
-</div>
-<div class="rating-legend text-sm text-gray-400">
-<p class="font-bold mb-2">RATING SYSTEM LEGEND:</p>
-<ul class="list-disc list-inside ml-4">
-<li>**1:** Minimal/No Stealth (Easily detectable by conventional radar)</li>
-<li>**5:** Moderate Stealth (Reduced radar cross-section, detectable by advanced systems)</li>
-<li>**10:** Near Undetectable (Extremely low observable, designed to evade most detection systems)</li>
-</ul>
-<p class="font-bold mt-3 mb-2"><strong>Destructiveness Rating (1-10):</strong></p>
-<ul class="list-disc list-inside ml-4">
-<li>**1:** Limited Destructive Power (Primarily reconnaissance or light attack)</li>
-<li>**5:** Moderate Destructive Power (Standard combat loadout for fighter aircraft)</li>
-<li>**10:** Catastrophic Destructive Power (Heavy bomber payload, strategic strike capability)</li>
-</ul>
-</div>
-</div>
-
-
-<div id="rangeMapContainer" class="chart-container">
-<h4 class="chart-title">OPERATIONAL RANGE PROJECTION (FROM EQUATOR)</h4>
-<svg id="rangeMap" class="w-full h-96"></svg>
-<p class="text-sm text-gray-400 mt-4">Note: Map projection is for illustrative range comparison, not precise navigation.</p>
-</div>
-
-<div id="visualizationGraphs" class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
-<div id="speedChartContainer" class="chart-container">
-<h4 class="chart-title">MAX SPEED (MACH)</h4>
-<svg id="speedChart"></svg>
-</div>
-<div id="rangeChartContainer" class="chart-container">
-<h4 class="chart-title">RANGE (KM)</h4>
-<svg id="rangeChart"></svg>
-</div>
-<div id="weightChartContainer" class="chart-container">
-<h4 class="chart-title">MAX TAKEOFF WEIGHT (KG)</h4>
-<svg id="weightChart"></svg>
-</div>
-<div id="costChartContainer" class="chart-container">
-<h4 class="chart-title">UNIT COST (M USD)</h4>
-<svg id="costChart"></svg>
-</div>
-</div>
-</div>
-</section>
-
-</main>
-
-<footer class="bg-gray-900 text-white py-8 mt-12 rounded-t-xl border-t-2 border-blue-600">
-<div class="container text-center">
-<p class="text-gray-400">Made by Zeeshan, Gemini integrated</p>
-<p class="text-sm mt-2 text-gray-500">&copy; 2025 JETSTREAM. ALL RIGHTS RESERVED. // CLASSIFIED ACCESS ONLY</p>
-<p class="text-sm mt-2 text-gray-500">DATA FOR INFORMATIONAL PURPOSES. MAY NOT BE EXHAUSTIVE.</p>
-</div>
-</footer>
-
-<script>
-// Data for all jets, including new ones and converted units
-const jetData = [
-{
-name: "F-22 Raptor",
-category: "current",
-role: "Air Superiority Fighter",
-manufacturer: "Lockheed Martin / Boeing",
-countryOfOrigin: "USA",
-operatorCountries: ["USA"],
-battleTested: true,
-quantity: 187,
-stealthRating: 9.5, // High stealth
-destructivenessRating: 8.5, // High
-firstFlight: "1997",
-decade: 1990,
-maxSpeed: "Mach 2.25+ (2,756 km/h)",
-maxSpeedMach: 2.25,
-speedKmh: 2756,
-range: "2,900 km (combat)",
-rangeKms: 2900,
-armament: "M61A2 Vulcan, AIM-9, AIM-120",
-crew: "1",
-engineThrust: "2 x 35,000 lbf (afterburning)",
-length: "18.9 m",
-wingspan: "13.56 m",
-maxTakeoffWeight: "37,875 kg",
-maxTakeoffWeightKgs: 37875,
-unitCost: "$150M",
-unitCostMillionUsd: 150,
-keyFeature: "Extreme stealth, Supercruise, Advanced avionics",
-imageUrl: "f22.jpg"
-},
-{
-name: "F-35 Lightning II",
-category: "current",
-role: "Multi-role Fighter",
-manufacturer: "Lockheed Martin",
-countryOfOrigin: "USA",
-operatorCountries: ["USA", "UK", "Japan", "Israel", "Australia", "Canada", "Italy", "Netherlands", "Norway", "South Korea", "Belgium", "Denmark", "Finland", "Germany", "Poland", "Singapore", "Switzerland"],
-battleTested: true,
-quantity: 990, // Approx across all variants
-stealthRating: 9.0, // High stealth
-destructivenessRating: 8.0, // High
-firstFlight: "2006",
-decade: 2000,
-maxSpeed: "Mach 1.6 (1,960 km/h)",
-maxSpeedMach: 1.6,
-speedKmh: 1960,
-range: "2,170 km (combat)",
-rangeKms: 2170,
-armament: "GAU-22/A (F-35A), AIM-9X, AIM-120, JDAM",
-crew: "1",
-engineThrust: "1 x 43,000 lbf (afterburning)",
-length: "15.67 m",
-wingspan: "10.67 m",
-maxTakeoffWeight: "31,751 kg",
-maxTakeoffWeightKgs: 31751,
-unitCost: "$80M - $110M",
-unitCostMillionUsd: 95, // Average
-keyFeature: "Stealth, Sensor fusion, STOVL (some variants)",
-imageUrl: "f35.jpg"
-},
-{
-name: "Su-57 Felon",
-category: "current",
-role: "Multi-role Stealth Fighter",
-manufacturer: "Sukhoi",
-countryOfOrigin: "Russia",
-operatorCountries: ["Russia"],
-battleTested: true,
-quantity: 20, // Limited production
-stealthRating: 7.5, // Moderate stealth
-destructivenessRating: 7.0, // Moderate
-firstFlight: "2010",
-decade: 2010,
-maxSpeed: "Mach 2.0 (2,450 km/h)",
-maxSpeedMach: 2.0,
-speedKmh: 2450,
-range: "3,500 km",
-rangeKms: 3500,
-armament: "GSh-30-1, R-77, R-73, Kh-31",
-crew: "1",
-engineThrust: "2 x 33,000 lbf (afterburning)",
-length: "20.1 m",
-wingspan: "14.1 m",
-maxTakeoffWeight: "35,000 kg",
-maxTakeoffWeightKgs: 35000,
-unitCost: "$40M",
-unitCostMillionUsd: 40,
-keyFeature: "Stealth, Supercruise, Thrust vectoring",
-imageUrl: "su57.jpg" /* Updated image path */
-},
-{
-name: "Eurofighter Typhoon",
-category: "current",
-role: "Multi-role Fighter",
-manufacturer: "Eurofighter GmbH",
-countryOfOrigin: "Multi-national (UK, Germany, Italy, Spain)",
-operatorCountries: ["UK", "Germany", "Italy", "Spain", "Austria", "Saudi Arabia", "Oman", "Kuwait", "Qatar"],
-battleTested: true,
-quantity: 570,
-stealthRating: 5.0, // Low stealth (4.5 gen)
-destructivenessRating: 7.5, // High
-firstFlight: "1994",
-decade: 1990,
-maxSpeed: "Mach 2.0 (2,450 km/h)",
-maxSpeedMach: 2.0,
-speedKmh: 2450,
-range: "2,900 km",
-rangeKms: 2900,
-armament: "Mauser BK-27, AIM-120, IRIS-T, Storm Shadow",
-crew: "1",
-engineThrust: "2 x 20,250 lbf (afterburning)",
-length: "15.96 m",
-wingspan: "11.1 m",
-maxTakeoffWeight: "23,500 kg",
-maxTakeoffWeightKgs: 23500,
-unitCost: "$120M",
-unitCostMillionUsd: 120,
-keyFeature: "Agility, Advanced radar, Swing-role capability",
-imageUrl: "eurofighter.jpg"
-},
-{
-name: "Dassault Rafale",
-category: "current",
-role: "Omnirole Fighter",
-manufacturer: "Dassault Aviation",
-countryOfOrigin: "France",
-operatorCountries: ["France", "Egypt", "Qatar", "India", "Greece", "Croatia", "Indonesia", "UAE"],
-battleTested: true,
-quantity: 250,
-stealthRating: 5.5, // Low stealth (4.5 gen)
-destructivenessRating: 7.0, // Moderate
-firstFlight: "1986",
-decade: 1980,
-maxSpeed: "Mach 1.8 (2,205 km/h)",
-maxSpeedMach: 1.8,
-speedKmh: 2205,
-range: "3,700 km (ferry)",
-rangeKms: 3700,
-armament: "30 mm GIAT 30, MICA, Meteor, Scalp EG",
-crew: "1-2",
-engineThrust: "2 x 16,860 lbf (afterburning)",
-length: "15.27 m",
-wingspan: "10.8 m",
-maxTakeoffWeight: "24,500 kg",
-maxTakeoffWeightKgs: 24500,
-unitCost: "$100M",
-unitCostMillionUsd: 100,
-keyFeature: "Omnirole capability, Canard-delta wing, SPECTRA EW suite",
-imageUrl: "rafale.jpg"
-},
-{
-name: "J-20 Mighty Dragon",
-category: "current",
-role: "Multi-role Stealth Fighter",
-manufacturer: "Chengdu Aerospace Corporation",
-countryOfOrigin: "China",
-operatorCountries: ["China"],
-battleTested: false, // No publicly known combat
-quantity: 200, // Estimated
-stealthRating: 8.0, // High stealth
-destructivenessRating: 7.5, // High
-firstFlight: "2011",
-decade: 2010,
-maxSpeed: "Mach 2.0+ (2,450 km/h)",
-maxSpeedMach: 2.0,
-speedKmh: 2450,
-range: "5,500 km (ferry)",
-rangeKms: 5500,
-armament: "PL-10, PL-15, PL-21",
-crew: "1",
-engineThrust: "2 x 32,000 lbf (afterburning) (estimated)",
-length: "20.4 m",
-wingspan: "13.5 m",
-maxTakeoffWeight: "37,000 kg",
-maxTakeoffWeightKgs: 37000,
-unitCost: "$110M",
-unitCostMillionUsd: 110,
-keyFeature: "Stealth, Long-range, Large internal weapons bay",
-imageUrl: "j20f.jpg"
-},
-{
-name: "F-15 Eagle",
-category: "current",
-role: "Air Superiority Fighter",
-manufacturer: "McDonnell Douglas (now Boeing)",
-countryOfOrigin: "USA",
-operatorCountries: ["USA", "Japan", "Saudi Arabia", "Israel", "South Korea", "Singapore", "Qatar"],
-battleTested: true,
-quantity: 1200,
-stealthRating: 2.0, // Non-stealthy
-destructivenessRating: 6.5, // Moderate
-firstFlight: "1972",
-decade: 1970,
-maxSpeed: "Mach 2.5+ (3,063 km/h)",
-maxSpeedMach: 2.5,
-speedKmh: 3063,
-range: "5,550 km (ferry)",
-rangeKms: 5550,
-armament: "M61 Vulcan, AIM-7, AIM-9, AIM-120",
-crew: "1-2",
-engineThrust: "2 x 23,450 lbf (afterburning)",
-length: "19.43 m",
-wingspan: "13.05 m",
-maxTakeoffWeight: "36,741 kg",
-maxTakeoffWeightKgs: 36741,
-unitCost: "$30M",
-unitCostMillionUsd: 30,
-keyFeature: "Exceptional speed and climb, Proven combat record",
-imageUrl: "f15.jpg"
-},
-{
-name: "F-16 Fighting Falcon",
-category: "current",
-role: "Multi-role Fighter",
-manufacturer: "General Dynamics (now Lockheed Martin)",
-countryOfOrigin: "USA",
-operatorCountries: ["USA", "Belgium", "Denmark", "Egypt", "Greece", "Israel", "Jordan", "Netherlands", "Norway", "Pakistan", "Poland", "Portugal", "South Korea", "Taiwan", "Thailand", "Turkey", "Venezuela", "UAE", "Bahrain", "Chile", "Indonesia", "Iraq", "Oman", "Romania", "Singapore", "Slovakia", "Morocco", "Bulgaria", "Croatia"],
-battleTested: true,
-quantity: 4600,
-stealthRating: 1.5, // Non-stealthy
-destructivenessRating: 6.0, // Moderate
-firstFlight: "1974",
-decade: 1970,
-maxSpeed: "Mach 2.05 (2,511 km/h)",
-maxSpeedMach: 2.05,
-speedKmh: 2511,
-range: "3,200 km (ferry)",
-rangeKms: 3200,
-armament: "M61 Vulcan, AIM-9, AIM-120, various bombs",
-crew: "1",
-engineThrust: "1 x 29,000 lbf (afterburning)",
-length: "15.06 m",
-wingspan: "9.96 m",
-maxTakeoffWeight: "19,187 kg",
-maxTakeoffWeightKgs: 19187,
-unitCost: "$20M",
-unitCostMillionUsd: 20,
-keyFeature: "Agile, Cost-effective, Widely Exported",
-imageUrl: "f16f.jpg"
-},
-{
-name: "A-10 Thunderbolt II",
-category: "current",
-role: "Close Air Support",
-manufacturer: "Fairchild Republic",
-countryOfOrigin: "USA",
-operatorCountries: ["USA"],
-battleTested: true,
-quantity: 280,
-stealthRating: 0.5, // Very low stealth
-destructivenessRating: 8.0, // High (specialized for ground attack)
-firstFlight: "1972",
-decade: 1970,
-maxSpeed: "724 km/h (Mach 0.59)",
-maxSpeedMach: 0.59,
-speedKmh: 724,
-range: "4,150 km (ferry)",
-rangeKms: 4150,
-armament: "GAU-8/A Avenger, AGM-65 Maverick, various bombs",
-crew: "1",
-engineThrust: "2 x 9,065 lbf (turbofan)",
-length: "16.26 m",
-wingspan: "17.53 m",
-maxTakeoffWeight: "22,680 kg",
-maxTakeoffWeightKgs: 22680,
-unitCost: "$19M",
-unitCostMillionUsd: 19,
-keyFeature: "Armored, GAU-8 Cannon, CAS Specialist",
-imageUrl: "a10.jpg"
-},
-{
-name: "F/A-18 Super Hornet",
-category: "current",
-role: "Multi-role Combat Jet",
-manufacturer: "McDonnell Douglas (now Boeing)",
-countryOfOrigin: "USA",
-operatorCountries: ["USA", "Australia", "Canada", "Kuwait", "Malaysia", "Spain", "Switzerland"],
-battleTested: true,
-quantity: 600,
-stealthRating: 3.0, // Low stealth
-destructivenessRating: 7.0, // Moderate
-firstFlight: "1995",
-decade: 1990,
-maxSpeed: "Mach 1.8 (2,205 km/h)",
-maxSpeedMach: 1.8,
-speedKmh: 2205,
-range: "3,330 km (ferry)",
-rangeKms: 3330,
-armament: "M61A2 Vulcan, AIM-9, AIM-120, JDAM, Harpoon",
-crew: "1-2",
-engineThrust: "2 x 22,000 lbf (afterburning)",
-length: "18.31 m",
-wingspan: "13.62 m",
-maxTakeoffWeight: "29,937 kg",
-maxTakeoffWeightKgs: 29937,
-unitCost: "$70M",
-unitCostMillionUsd: 70,
-keyFeature: "Carrier-capable, Versatile, Advanced avionics",
-imageUrl: "fa18.jpg"
-},
-{
-name: "Saab Gripen",
-category: "current",
-role: "Lightweight Multi-role Fighter",
-manufacturer: "Saab AB",
-countryOfOrigin: "Sweden",
-operatorCountries: ["Sweden", "Czech Republic", "Hungary", "South Africa", "Thailand", "Brazil"],
-battleTested: false, // No publicly known combat
-quantity: 270,
-stealthRating: 3.5, // Low stealth
-destructivenessRating: 5.5, // Moderate
-firstFlight: "1988",
-decade: 1980,
-maxSpeed: "Mach 2.0 (2,450 km/h)",
-maxSpeedMach: 2.0,
-speedKmh: 2450,
-range: "3,200 km (ferry)",
-rangeKms: 3200,
-armament: "27 mm Mauser BK-27, AIM-9, AIM-120, Meteor",
-crew: "1",
-engineThrust: "1 x 18,000 lbf (afterburning)",
-length: "14.1 m",
-wingspan: "8.4 m",
-maxTakeoffWeight: "14,000 kg",
-maxTakeoffWeightKgs: 14000,
-unitCost: "$60M",
-unitCostMillionUsd: 60,
-keyFeature: "Cost-effective, Agile, Short field capability",
-imageUrl: "gripen.jpg"
-},
-{
-name: "Sukhoi Su-35",
-category: "current",
-role: "Multi-role Super-maneuverable Fighter",
-manufacturer: "Sukhoi",
-countryOfOrigin: "Russia",
-operatorCountries: ["Russia", "China", "Egypt", "Indonesia"],
-battleTested: true,
-quantity: 150,
-stealthRating: 4.0, // Low stealth (4++ gen)
-destructivenessRating: 7.0, // Moderate
-firstFlight: "2008",
-decade: 2000,
-maxSpeed: "Mach 2.25 (2,756 km/h)",
-maxSpeedMach: 2.25,
-speedKmh: 2756,
-range: "3,600 km",
-rangeKms: 3600,
-armament: "30 mm GSh-30-1, R-77, R-73, Kh-31",
-crew: "1",
-engineThrust: "2 x 31,900 lbf (afterburning)",
-length: "21.9 m",
-wingspan: "15.3 m",
-maxTakeoffWeight: "34,500 kg",
-maxTakeoffWeightKgs: 34500,
-unitCost: "$85M",
-unitCostMillionUsd: 85,
-keyFeature: "Super-maneuverability, Thrust vectoring, Powerful radar",
-imageUrl: "su35.jpg" /* Updated image path */
-},
-{
-name: "B-2 Spirit",
-category: "current",
-role: "Stealth Strategic Bomber",
-manufacturer: "Northrop Grumman",
-countryOfOrigin: "USA",
-operatorCountries: ["USA"],
-battleTested: true,
-quantity: 20,
-stealthRating: 10.0, // Extremely high stealth
-destructivenessRating: 9.5, // Extremely high
-firstFlight: "1989",
-decade: 1980,
-maxSpeed: "1,010 km/h (Mach 0.81)",
-maxSpeedMach: 0.81,
-speedKmh: 1010,
-range: "11,000 km (unrefueled)",
-rangeKms: 11000,
-armament: "Up to 18,000 kg of bombs (conventional/nuclear)",
-crew: "2",
-engineThrust: "4 x 17,300 lbf (turbofan)",
-length: "21.0 m",
-wingspan: "52.4 m",
-maxTakeoffWeight: "170,000 kg",
-maxTakeoffWeightKgs: 170000,
-unitCost: "$2.1B",
-unitCostMillionUsd: 2100, // Billions
-keyFeature: "Extreme stealth, Large payload, Global reach",
-imageUrl: "b2.jpg"
-},
-{
-name: "B-52 Stratofortress",
-category: "current",
-role: "Long-range, Subsonic, Jet-powered Strategic Bomber",
-manufacturer: "Boeing",
-countryOfOrigin: "USA",
-operatorCountries: ["USA"],
-battleTested: true,
-quantity: 76,
-stealthRating: 0.1, // No stealth
-destructivenessRating: 9.0, // High
-firstFlight: "1952",
-decade: 1950,
-maxSpeed: "1,047 km/h (Mach 0.86)",
-maxSpeedMach: 0.86,
-speedKmh: 1047,
-range: "14,162 km (combat)",
-rangeKms: 14162,
-armament: "Up to 31,500 kg of bombs, mines, missiles (conventional/nuclear)",
-crew: "5",
-engineThrust: "8 x 17,000 lbf (turbofan)",
-length: "48.5 m",
-wingspan: "56.4 m",
-maxTakeoffWeight: "219,600 kg",
-maxTakeoffWeightKgs: 219600,
-unitCost: "$87M",
-unitCostMillionUsd: 87,
-keyFeature: "Heavy payload, Long endurance, Adaptable to various missions",
-imageUrl: "b52.jpg"
-},
-{
-name: "Tu-160 Blackjack",
-category: "current",
-role: "Supersonic Strategic Bomber",
-manufacturer: "Tupolev",
-countryOfOrigin: "Russia",
-operatorCountries: ["Russia"],
-battleTested: true,
-quantity: 16,
-stealthRating: 1.0, // Low stealth
-destructivenessRating: 9.0, // High
-firstFlight: "1981",
-decade: 1980,
-maxSpeed: "Mach 2.05 (2,500 km/h)",
-maxSpeedMach: 2.05,
-speedKmh: 2500,
-range: "12,300 km (unrefueled)",
-rangeKms: 12300,
-armament: "Up to 40,000 kg of missiles (cruise, nuclear, anti-ship)",
-crew: "4",
-engineThrust: "4 x 55,100 lbf (afterburning)",
-length: "54.1 m",
-wingspan: "55.7 m (spread) / 35.6 m (swept)",
-maxTakeoffWeight: "275,000 kg",
-maxTakeoffWeightKgs: 275000,
-unitCost: "$250M",
-unitCostMillionUsd: 250,
-keyFeature: "Variable-sweep wing, Supersonic dash, Largest combat aircraft",
-imageUrl: "tu160.jpg" /* Updated image path */
-},
-{
-name: "F-4 Phantom II",
-category: "historical",
-role: "Interceptor, Fighter-bomber",
-manufacturer: "McDonnell Douglas",
-countryOfOrigin: "USA",
-operatorCountries: ["USA", "Germany", "Japan", "Israel", "UK", "Greece", "Turkey", "Iran", "South Korea", "Egypt", "Spain", "Australia"],
-battleTested: true,
-quantity: 5195,
-stealthRating: 0.5, // Very low stealth
-destructivenessRating: 5.0, // Moderate
-firstFlight: "1958",
-decade: 1950,
-maxSpeed: "Mach 2.23 (2,730 km/h)",
-maxSpeedMach: 2.23,
-speedKmh: 2730,
-range: "2,600 km",
-rangeKms: 2600,
-armament: "M61 Vulcan (later models), AIM-7, AIM-9, Bombs",
-crew: "2",
-engineThrust: "2 x 17,900 lbf (afterburning)",
-length: "17.7 m",
-wingspan: "11.7 m",
-maxTakeoffWeight: "28,029 kg",
-maxTakeoffWeightKgs: 28029,
-unitCost: "$2.4M",
-unitCostMillionUsd: 2.4,
-keyFeature: "Versatility, Robust design, Long service life",
-imageUrl: "f4 phantom.jpg"
-},
-{
-name: "MiG-21 Fishbed",
-category: "historical",
-role: "Interceptor, Fighter",
-manufacturer: "Mikoyan-Gurevich",
-countryOfOrigin: "Soviet Union",
-operatorCountries: ["Soviet Union", "India", "China", "Egypt", "Vietnam", "Cuba", "North Korea", "Syria", "Poland", "Romania", "Hungary", "Czechoslovakia", "East Germany", "Finland", "Yugoslavia", "Algeria", "Angola", "Ethiopia", "Libya", "Mozambique", "Nigeria", "Somalia", "Sudan", "Tanzania", "Uganda", "Zambia", "Afghanistan", "Bangladesh", "Bulgaria", "Cambodia", "Congo", "Croatia", "Eritrea", "Guinea", "Guinea-Bissau", "Laos", "Madagascar", "Mali", "Mongolia", "Myanmar", "Peru", "Serbia", "Slovakia", "Sri Lanka", "Syria", "Uganda", "Yemen"],
-battleTested: true,
-quantity: 11496,
-stealthRating: 0.2, // Very low stealth
-destructivenessRating: 4.5, // Moderate
-firstFlight: "1955",
-decade: 1950,
-maxSpeed: "Mach 2.05 (2,511 km/h)",
-maxSpeedMach: 2.05,
-speedKmh: 2511,
-range: "1,090 km",
-rangeKms: 1090,
-armament: "GSh-23, R-3S (AA-2 Atoll)",
-crew: "1",
-engineThrust: "1 x 14,550 lbf (afterburning)",
-length: "15.76 m",
-wingspan: "7.15 m",
-maxTakeoffWeight: "9,290 kg",
-maxTakeoffWeightKgs: 9290,
-unitCost: "$1.5M",
-unitCostMillionUsd: 1.5,
-keyFeature: "Lightweight, High speed, Widely produced",
-imageUrl: "mig21.jpg"
-},
-{
-name: "SR-71 Blackbird",
-category: "historical",
-role: "Strategic Reconnaissance",
-manufacturer: "Lockheed",
-countryOfOrigin: "USA",
-operatorCountries: ["USA"],
-battleTested: false, // Never fired a shot in anger
-quantity: 32,
-stealthRating: 6.0, // Early form of stealth
-destructivenessRating: 2.0, // Low (reconnaissance, no armament)
-firstFlight: "1964",
-decade: 1960,
-maxSpeed: "Mach 3.3+ (4,040 km/h)",
-maxSpeedMach: 3.3,
-speedKmh: 4040,
-range: "5,150 km",
-rangeKms: 5150,
-armament: "None",
-crew: "2",
-engineThrust: "2 x 34,000 lbf (afterburning)",
-length: "32.74 m",
-wingspan: "16.94 m",
-maxTakeoffWeight: "78,000 kg",
-maxTakeoffWeightKgs: 78000,
-unitCost: "$34M",
-unitCostMillionUsd: 34,
-keyFeature: "Extreme speed, High altitude, Stealth (early form)",
-imageUrl: "sr71.jpg" /* Updated image path */
-},
-{
-name: "Concorde",
-category: "historical",
-role: "Supersonic Passenger Airliner",
-manufacturer: "Aérospatiale / British Aircraft Corp.",
-countryOfOrigin: "Multi-national (France, UK)",
-operatorCountries: ["British Airways", "Air France"],
-battleTested: false, // Civilian
-quantity: 20,
-stealthRating: 0.0, // Not applicable
-destructivenessRating: 0.0, // Not applicable
-firstFlight: "1969",
-decade: 1960,
-maxSpeed: "Mach 2.04 (2,496 km/h)",
-maxSpeedMach: 2.04,
-speedKmh: 2496,
-range: "7,222 km",
-rangeKms: 7222,
-armament: "None",
-crew: "3 (flight deck)",
-engineThrust: "4 x 38,050 lbf (afterburning)",
-length: "61.66 m",
-wingspan: "25.6 m",
-maxTakeoffWeight: "185,000 kg",
-maxTakeoffWeightKgs: 185000,
-unitCost: "$23M",
-unitCostMillionUsd: 23,
-keyFeature: "Commercial supersonic flight, Delta wing",
-imageUrl: "concorde.jpg"
-},
-{
-name: "F-14 Tomcat",
-category: "historical",
-role: "Supersonic, Twin-engine, Two-seat, Twin-tail, Variable-sweep wing fighter",
-manufacturer: "Grumman",
-countryOfOrigin: "USA",
-operatorCountries: ["USA", "Iran"],
-battleTested: true,
-quantity: 712,
-stealthRating: 1.0, // Non-stealthy
-destructivenessRating: 6.0, // Moderate
-firstFlight: "1970",
-decade: 1970,
-maxSpeed: "Mach 2.34 (2,860 km/h)",
-maxSpeedMach: 2.34,
-speedKmh: 2860,
-range: "2,963 km (combat)",
-rangeKms: 2963,
-armament: "M61A1 Vulcan, AIM-54 Phoenix, AIM-7 Sparrow, AIM-9 Sidewinder",
-crew: "2",
-engineThrust: "2 x 20,900 lbf (afterburning)",
-length: "19.1 m",
-wingspan: "19.55 m (spread) / 11.65 m (swept)",
-maxTakeoffWeight: "33,724 kg",
-maxTakeoffWeightKgs: 33724,
-unitCost: "$38M",
-unitCostMillionUsd: 38,
-keyFeature: "Variable-sweep wings, AIM-54 Phoenix missile, Naval air superiority",
-imageUrl: "f14.jpg"
-},
-{
-name: "MiG-29 Fulcrum",
-category: "historical",
-role: "Air Superiority Fighter",
-manufacturer: "Mikoyan",
-countryOfOrigin: "Soviet Union",
-operatorCountries: ["Russia", "India", "Ukraine", "Poland", "Germany", "Hungary", "Bulgaria", "Romania", "Serbia", "Algeria", "Bangladesh", "Cuba", "Eritrea", "Iran", "Kazakhstan", "Myanmar", "North Korea", "Peru", "Slovakia", "Sudan", "Syria", "Turkmenistan", "Uzbekistan", "Yemen"],
-battleTested: true,
-quantity: 1600,
-stealthRating: 1.0, // Non-stealthy
-destructivenessRating: 5.5, // Moderate
-firstFlight: "1977",
-decade: 1970,
-maxSpeed: "Mach 2.25 (2,756 km/h)",
-maxSpeedMach: 2.25,
-speedKmh: 2756,
-range: "2,100 km (ferry)",
-rangeKms: 2100,
-armament: "30 mm GSh-30-1, R-73, R-27",
-crew: "1",
-engineThrust: "2 x 18,300 lbf (afterburning)",
-length: "17.37 m",
-wingspan: "11.4 m",
-maxTakeoffWeight: "18,500 kg",
-maxTakeoffWeightKgs: 18500,
-unitCost: "$29M",
-unitCostMillionUsd: 29,
-keyFeature: "Highly maneuverable, Helmet-mounted sight",
-imageUrl: "mig29.jpg"
-},
-{
-name: "Panavia Tornado",
-category: "historical",
-role: "Multi-role Combat Aircraft",
-manufacturer: "Panavia Aircraft GmbH",
-countryOfOrigin: "Multi-national (UK, Germany, Italy)",
-operatorCountries: ["UK", "Germany", "Italy", "Saudi Arabia"],
-battleTested: true,
-quantity: 992,
-stealthRating: 0.8, // Very low stealth
-destructivenessRating: 6.5, // Moderate
-firstFlight: "1974",
-decade: 1970,
-maxSpeed: "Mach 2.2 (2,700 km/h)",
-maxSpeedMach: 2.2,
-speedKmh: 2700,
-range: "1,390 km (combat)",
-rangeKms: 1390,
-armament: "27 mm Mauser BK-27, ASRAAM, Storm Shadow, Brimstone",
-crew: "2",
-engineThrust: "2 x 16,000 lbf (afterburning)",
-length: "16.72 m",
-wingspan: "13.91 m (spread) / 8.6 m (swept)",
-maxTakeoffWeight: "28,000 kg",
-maxTakeoffWeightKgs: 28000,
-unitCost: "$50M",
-unitCostMillionUsd: 50,
-keyFeature: "Variable-sweep wing, Low-level penetration, All-weather capability",
-imageUrl: "panavia.jpg"
-},
-{
-name: "F-117 Nighthawk",
-category: "historical",
-role: "Stealth Attack Aircraft",
-manufacturer: "Lockheed",
-countryOfOrigin: "USA",
-operatorCountries: ["USA"],
-battleTested: true,
-quantity: 59,
-stealthRating: 8.5, // High stealth for its era
-destructivenessRating: 6.0, // Moderate (precision strike)
-firstFlight: "1981",
-decade: 1980,
-maxSpeed: "993 km/h (Mach 0.8)",
-maxSpeedMach: 0.8,
-speedKmh: 993,
-range: "1,720 km (combat)",
-rangeKms: 1720,
-armament: "Internal bay for 2,300 kg of bombs/missiles (e.g., JDAM, GBU-27)",
-crew: "1",
-engineThrust: "2 x 10,800 lbf (turbofan)",
-length: "20.08 m",
-wingspan: "13.2 m",
-maxTakeoffWeight: "23,814 kg",
-maxTakeoffWeightKgs: 23814,
-unitCost: "$111M",
-unitCostMillionUsd: 111,
-keyFeature: "First operational stealth aircraft, Faceted design",
-imageUrl: "f117.jpg"
-},
-{
-name: "B-1 Lancer",
-category: "historical",
-role: "Supersonic Variable-sweep Wing Strategic Bomber",
-manufacturer: "Rockwell International (now Boeing)",
-countryOfOrigin: "USA",
-operatorCountries: ["USA"],
-battleTested: true,
-quantity: 100,
-stealthRating: 1.5, // Low stealth
-destructivenessRating: 9.0, // High
-firstFlight: "1974",
-decade: 1970,
-maxSpeed: "Mach 1.25 (1,530 km/h)",
-maxSpeedMach: 1.25,
-speedKmh: 1530,
-range: "9,600 km (unrefueled)",
-rangeKms: 9600,
-armament: "Up to 34,000 kg internal, 27,000 kg external (bombs, missiles)",
-crew: "4",
-engineThrust: "4 x 30,780 lbf (afterburning)",
-length: "44.5 m",
-wingspan: "41.67 m (spread) / 24.1 m (swept)",
-maxTakeoffWeight: "216,400 kg",
-maxTakeoffWeightKgs: 216400,
-unitCost: "$280M",
-unitCostMillionUsd: 280,
-keyFeature: "Supersonic, Variable-sweep wing, Large payload capacity",
-imageUrl: "b1lancer.jpg"
-},
-{
-name: "NGAD Fighter (Hypothetical)",
-category: "future",
-role: "Next-Generation Air Dominance Fighter",
-manufacturer: "Undisclosed",
-countryOfOrigin: "USA (Projected)",
-operatorCountries: ["USA (Projected)"],
-battleTested: false,
-quantity: 0, // In development
-stealthRating: 9.8, // Extremely high stealth (projected)
-destructivenessRating: 9.0, // High (projected)
-firstFlight: "2030 (Projected)",
-decade: 2030,
-maxSpeed: "Mach 3.0+ (3,675 km/h)",
-maxSpeedMach: 3.0,
-speedKmh: 3675,
-range: "6,000 km+ (combat)",
-rangeKms: 6000,
-armament: "Advanced internal weapons, Directed energy weapons (concept)",
-crew: "1 (AI-assisted)",
-engineThrust: "Adaptive cycle engines (concept)",
-length: "25 m (estimated)",
-wingspan: "18 m (estimated)",
-maxTakeoffWeight: "45,000 kg (estimated)",
-maxTakeoffWeightKgs: 45000,
-unitCost: "$300M+",
-unitCostMillionUsd: 300,
-keyFeature: "Extreme stealth, AI integration, Networked warfare, Hypersonic capability",
-imageUrl: "https://placehold.co/300x200/1a202c/63b3ed?text=NGAD+FIGHTER+CONCEPT" // Placeholder - image not provided yet
-},
-{
-name: "B-21 Raider",
-category: "future",
-role: "Stealth Strategic Bomber",
-manufacturer: "Northrop Grumman",
-countryOfOrigin: "USA",
-operatorCountries: ["USA"],
-battleTested: false, // In testing
-quantity: 6, // Prototypes/early production
-stealthRating: 9.9, // Extremely high stealth
-destructivenessRating: 9.8, // Extremely high
-firstFlight: "2023",
-decade: 2020,
-maxSpeed: "Subsonic (950 km/h)",
-maxSpeedMach: 0.77,
-speedKmh: 950,
-range: "10,000 km+ (unrefueled)",
-rangeKms: 10000,
-armament: "Conventional and nuclear munitions",
-crew: "2",
-engineThrust: "Undisclosed",
-length: "Undisclosed",
-wingspan: "Undisclosed",
-maxTakeoffWeight: "Undisclosed",
-maxTakeoffWeightKgs: 150000, // Estimated
-unitCost: "$700M+",
-unitCostMillionUsd: 700,
-keyFeature: "Next-gen stealth, Open-architecture systems, Long-range strike",
-imageUrl: "https://placehold.co/300x200/1a202c/63b3ed?text=B-21+RAIDER+CONCEPT" // Placeholder - image not provided yet
-},
-{
-name: "Hypersonic Interceptor (Concept)",
-category: "future",
-role: "High-Altitude, High-Speed Interceptor",
-manufacturer: "Various (Concept)",
-countryOfOrigin: "Multi-national (Concept)",
-operatorCountries: ["N/A"],
-battleTested: false,
-quantity: 0,
-stealthRating: 7.0, // Moderate stealth (focus on speed)
-destructivenessRating: 8.0, // High
-firstFlight: "2040s (Projected)",
-decade: 2040,
-maxSpeed: "Mach 5.0+ (6,125 km/h)",
-maxSpeedMach: 5.0,
-speedKmh: 6125,
-range: "3,000 km (intercept)",
-rangeKms: 3000,
-armament: "Hypersonic missiles, Advanced directed energy",
-crew: "1",
-engineThrust: "Scramjet/Ramjet hybrid (concept)",
-length: "30 m (estimated)",
-wingspan: "10 m (estimated)",
-maxTakeoffWeight: "20,000 kg (estimated)",
-maxTakeoffWeightKgs: 20000,
-unitCost: "$200M+",
-unitCostMillionUsd: 200,
-keyFeature: "Extreme speed, Rapid response, Anti-hypersonic defense",
-imageUrl: "https://placehold.co/300x200/1a202c/63b3ed?text=HYPERSONIC+INTERCEPTOR+CONCEPT" // Placeholder - image not provided yet
-}
-];
-
-// Get elements
-const jetSelect1 = document.getElementById('jetSelect1');
-const jetSelect2 = document.getElementById('jetSelect2');
-const jetSelect3 = document.getElementById('jetSelect3');
-const compareButton = document.getElementById('compareButton');
-const summarizeButton = document.getElementById('summarizeButton');
-const summarizeLoader = document.getElementById('summarizeLoader');
-const comparisonTableBody = document.getElementById('comparisonTableBody');
-const headerCol1 = document.getElementById('headerCol1');
-const headerCol2 = document.getElementById('headerCol2');
-const headerCol3 = document.getElementById('headerCol3');
-const selectedJetImagesContainer = document.getElementById('selectedJetImages');
-const summarySection = document.getElementById('summarySection');
-const generatedSummary = document.getElementById('generatedSummary');
-const currentJetsContainer = document.querySelector('#current-jets .grid');
-const historicalJetsContainer = document.querySelector('#historical-jets .grid');
-const futureJetsContainer = document.querySelector('#future-jets .grid'); // New container for future jets
-const modernJetDecadeFilter = document.getElementById('modernJetDecadeFilter');
-const legacyJetDecadeFilter = document.getElementById('legacyJetDecadeFilter');
-const futureJetDecadeFilter = document.getElementById('futureJetDecadeFilter'); // New filter for future jets
-const ratingsListContainer = document.getElementById('ratingsList'); // New container for ratings list
-let rangeMapSvg; // Declared globally, initialized in window.onload
-
-
-// Create a single tooltip element for D3 charts
-const tooltip = d3.select("body").append("div")
-.attr("class", "tooltip");
-
-// Function to populate jet cards in sections based on filters
-function populateJetCards() {
-currentJetsContainer.innerHTML = ''; // Clear existing cards
-historicalJetsContainer.innerHTML = ''; // Clear existing cards
-futureJetsContainer.innerHTML = ''; // Clear existing cards for future jets
-
-const selectedModernDecade = modernJetDecadeFilter.value;
-const selectedLegacyDecade = legacyJetDecadeFilter.value;
-const selectedFutureDecade = futureJetDecadeFilter.value; // Get selected future decade
-
-const modernJets = jetData.filter(jet => jet.category === 'current' && (selectedModernDecade === 'all' || jet.decade == selectedModernDecade));
-const legacyJets = jetData.filter(jet => jet.category === 'historical' && (selectedLegacyDecade === 'all' || jet.decade == selectedLegacyDecade));
-const futureJets = jetData.filter(jet => jet.category === 'future' && (selectedFutureDecade === 'all' || jet.decade == selectedFutureDecade)); // Filter future jets
-
-// Get unique decades for dropdowns
-const allDecades = [...new Set(jetData.map(j => j.decade))].sort((a, b) => a - b);
-const modernDecades = [...new Set(jetData.filter(j => j.category === 'current').map(j => j.decade))].sort((a, b) => a - b);
-const legacyDecades = [...new Set(jetData.filter(j => j.category === 'historical').map(j => j.decade))].sort((a, b) => a - b);
-const futureDecades = [...new Set(jetData.filter(j => j.category === 'future').map(j => j.decade))].sort((a, b) => a - b);
-
-// Helper to populate a decade filter
-const populateDecadeFilter = (filterElement, decades, selectedValue) => {
-filterElement.innerHTML = '<option value="all">ALL DECADES</option>';
-decades.forEach(decade => {
-const option = document.createElement('option');
-option.value = decade;
-option.textContent = decade + 's';
-filterElement.appendChild(option);
-});
-filterElement.value = selectedValue;
-};
-
-populateDecadeFilter(modernJetDecadeFilter, modernDecades, selectedModernDecade);
-populateDecadeFilter(legacyJetDecadeFilter, legacyDecades, selectedLegacyDecade);
-populateDecadeFilter(futureJetDecadeFilter, futureDecades, selectedFutureDecade);
-
-
-const createJetCard = (jet) => {
-const battleTestedStatus = jet.battleTested ? '<span class="text-green-400 font-bold">YES</span>' : '<span class="text-red-400 font-bold">NO</span>';
-return `
-<div class="card">
-<img src="${jet.imageUrl}" alt="${jet.name}" class="w-full h-48 object-cover rounded-lg mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/400x250/1a202c/63b3ed?text=ASSET+IMAGE+ERROR';">
-<h4 class="text-2xl font-semibold mb-3 text-blue-400">${jet.name}</h4>
-<p class="text-gray-300 mb-2"><strong>ROLE:</strong> ${jet.role}</p>
-<p class="text-gray-300 mb-2"><strong>MANUFACTURER:</strong> ${jet.manufacturer}</p>
-<p class="text-gray-300 mb-2"><strong>COUNTRY OF ORIGIN:</strong> ${jet.countryOfOrigin}</p>
-<p class="text-gray-300 mb-2"><strong>OPERATOR NATIONS:</strong> ${jet.operatorCountries.join(', ')}</p>
-<p class="text-gray-300 mb-2"><strong>BATTLE TESTED:</strong> ${battleTestedStatus}</p>
-<p class="text-gray-300 mb-2"><strong>QUANTITY PRESENT:</strong> ${jet.quantity.toLocaleString()}</p>
-<p class="text-300 mb-2"><strong>FIRST FLIGHT:</strong> ${jet.firstFlight}</p>
-<p class="text-300 mb-2"><strong>MAX SPEED:</strong> ${jet.maxSpeed}</p>
-<p class="text-gray-300 mb-2"><strong>RANGE:</strong> ${jet.range}</p>
-<p class="text-gray-300 mb-2"><strong>MAX TAKEOFF WEIGHT:</strong> ${jet.maxTakeoffWeight}</p>
-<p class="text-gray-300 mb-2"><strong>UNIT COST:</strong> ${jet.unitCost}</p>
-<p class="text-gray-300"><strong>KEY CAPABILITY:</strong> ${jet.keyFeature}</p>
-</div>
-`;
-};
-
-modernJets.forEach(jet => currentJetsContainer.insertAdjacentHTML('beforeend', createJetCard(jet)));
-legacyJets.forEach(jet => historicalJetsContainer.insertAdjacentHTML('beforeend', createJetCard(jet)));
-futureJets.forEach(jet => futureJetsContainer.insertAdjacentHTML('beforeend', createJetCard(jet)));
-}
-
-
-// Populate dropdowns for comparison tool
-function populateDropdowns() {
-const selects = [jetSelect1, jetSelect2, jetSelect3];
-// Clear existing options first, except the default "-- SELECT ASSET --"
-selects.forEach(select => {
-while (select.options.length > 1) {
-select.remove(1);
-}
-});
-
-jetData.forEach(jet => {
-const option = document.createElement('option');
-option.value = jet.name;
-option.textContent = jet.name;
-selects.forEach(select => {
-select.appendChild(option.cloneNode(true)); // Clone to add to all selects
-});
-});
-}
-
-// Function to display selected jet images
-function displaySelectedJetImages(selectedJets) {
-selectedJetImagesContainer.innerHTML = ''; // Clear previous images
-
-if (selectedJets.length === 0) {
-return;
-}
-
-selectedJets.forEach(jet => {
-const imgContainer = document.createElement('div');
-imgContainer.classList.add('flex', 'flex-col', 'items-center', 'p-2', 'rounded-lg', 'bg-gray-700', 'shadow-sm', 'border', 'border-gray-600');
-
-const img = document.createElement('img');
-img.src = jet.imageUrl || 'https://placehold.co/300x200/1a202c/63b3ed?text=ASSET+PHOTO+UNAVAILABLE'; // Fallback image
-img.alt = jet.name;
-img.classList.add('w-48', 'h-32', 'object-cover', 'rounded-md', 'mb-2', 'border', 'border-gray-500');
-img.onerror = function() { // Fallback if image fails to load
-this.onerror = null; // Prevent infinite loop
-this.src = 'https://placehold.co/300x200/1a202c/63b3ed?text=ASSET+PHOTO+UNAVAILABLE';
-};
-
-const nameSpan = document.createElement('span');
-nameSpan.classList.add('text-sm', 'font-semibold', 'text-gray-200', 'text-center');
-nameSpan.textContent = jet.name;
-
-imgContainer.appendChild(img);
-imgContainer.appendChild(nameSpan);
-selectedJetImagesContainer.appendChild(imgContainer);
-});
-}
-
-// Function to draw D3 bar charts
-function drawBarChart(data, chartId, valueKey, label, unit) {
-const container = d3.select(`#${chartId}Container`); // Select the container div
-const svgElement = d3.select(`#${chartId}`); // Select the SVG element
-svgElement.html(""); // Clear previous chart content
-
-// Filter out data points where the value is not available or 0
-const filteredData = data.filter(d => d[valueKey] !== undefined && d[valueKey] !== null && d[valueKey] > 0);
-
-if (filteredData.length === 0) {
-svgElement.append("text")
-.attr("x", "50%")
-.attr("y", "50%")
-.attr("text-anchor", "middle")
-.attr("dominant-baseline", "middle")
-.attr("fill", "#6b7280")
-.text("NO DATA FOR THIS CHART.");
-return;
-}
-
-const margin = { top: 30, right: 20, bottom: 60, left: 70 };
-const containerWidth = container.node().getBoundingClientRect().width;
-const width = Math.max(300, containerWidth - margin.left - margin.right); // Min width for small screens
-const height = 250 - margin.top - margin.bottom;
-
-const svg = svgElement
-.attr("width", width + margin.left + margin.right)
-.attr("height", height + margin.top + margin.bottom)
-.append("g")
-.attr("transform", `translate(${margin.left},${margin.top})`);
-
-const x = d3.scaleBand()
-.domain(filteredData.map(d => d.name))
-.range([0, width])
-.padding(0.3);
-
-const y = d3.scaleLinear()
-.domain([0, d3.max(filteredData, d => d[valueKey]) * 1.1]) // 10% buffer for max value
-.range([height, 0]);
-
-// Add Y-axis grid lines
-svg.append("g")
-.attr("class", "grid")
-.call(d3.axisLeft(y).ticks(5).tickSize(-width).tickFormat(""));
-
-
-// X-axis
-svg.append("g")
-.attr("class", "axis x-axis")
-.attr("transform", `translate(0,${height})`)
-.call(d3.axisBottom(x))
-.selectAll("text")
-.attr("transform", "rotate(-45)")
-.style("text-anchor", "end");
-
-// Y-axis
-svg.append("g")
-.attr("class", "axis y-axis")
-.call(d3.axisLeft(y).ticks(5))
-.append("text")
-.attr("fill", "#cbd5e0") /* Lighter text for Y-axis label */
-.attr("transform", "rotate(-90)")
-.attr("y", -margin.left + 20)
-.attr("x", -height / 2)
-.attr("dy", "1em")
-.style("text-anchor", "middle")
-.text(`${label} (${unit})`);
-
-// Bars
-svg.selectAll(".bar")
-.data(filteredData)
-.enter().append("rect")
-.attr("class", "bar")
-.attr("x", d => x(d.name))
-.attr("y", d => y(d[valueKey]))
-.attr("width", x.bandwidth())
-.attr("height", d => height - y(d[valueKey]))
-.on("mouseover", function(event, d) {
-d3.select(this).attr("fill", "#4299e1"); // Darker blue on hover
-tooltip.style("opacity", 1)
-.html(`<strong>${d.name}</strong><br>${label}: ${d[valueKey]} ${unit}`)
-.style("left", (event.pageX + 10) + "px")
-.style("top", (event.pageY - 28) + "px");
-})
-.on("mouseout", function() {
-d3.select(this).attr("fill", "#63b3ed"); // Original blue
-tooltip.style("opacity", 0);
-});
-
-// Value labels on bars
-svg.selectAll(".value-label")
-.data(filteredData)
-.enter().append("text")
-.attr("class", "value-label")
-.attr("x", d => x(d.name) + x.bandwidth() / 2)
-.attr("y", d => y(d[valueKey]) - 5) // Position above the bar
-.text(d => d[valueKey])
-.style("fill", "#ffffff") /* Changed to white for better visibility */
-.style("font-weight", "bold")
-.style("pointer-events", "none"); // Prevent text from blocking mouse events on bars
-}
-
-// Function to draw the range map
-let path, projection, zoomBehavior;
-let active = d3.select(null); // Keep track of active zoom
-
-function drawRangeMap(selectedJets) {
-const rangeMapSvgElement = d3.select("#rangeMap");
-if (rangeMapSvgElement.empty() || rangeMapSvgElement.node() === null) {
-console.error("Error: #rangeMap SVG element not found or not ready.");
-return;
-}
-// Assign to window.rangeMapSvg only if it's not already assigned or is invalid
-if (!window.rangeMapSvg || window.rangeMapSvg.empty() || window.rangeMapSvg.node() === null) {
-window.rangeMapSvg = rangeMapSvgElement;
-}
-window.rangeMapSvg.html(""); // Clear previous map content
-
-const width = window.rangeMapSvg.node().getBoundingClientRect().width;
-const height = 400; // Fixed height for map for now
-
-window.rangeMapSvg.attr("viewBox", `0 0 ${width} ${height}`);
-
-// Define map projection (Equirectangular for simplicity)
-projection = d3.geoEquirectangular()
-.scale(width / (2 * Math.PI)) // Scale to fit width
-.translate([width / 2, height / 2]);
-
-path = d3.geoPath().projection(projection);
-
-// Create a group for map elements to apply zoom/pan
-const g = window.rangeMapSvg.append("g");
-
-// Load world map data
-d3.json("https://unpkg.com/world-atlas@2.0.2/countries-50m.json").then(world => {
-// Draw countries
-g.selectAll("path")
-.data(topojson.feature(world, world.objects.countries).features)
-.enter().append("path")
-.attr("class", "country")
-.attr("d", path);
-
-// Add a central point (e.g., near the equator) for range circles
-const originCoords = [0, 0]; // Longitude, Latitude (Equator, Prime Meridian)
-g.append("circle")
-.attr("class", "map-center-dot")
-.attr("cx", projection(originCoords)[0])
-.attr("cy", projection(originCoords)[1])
-.attr("r", 5); // Small dot for the origin
-
-// Add range circles for selected jets
-selectedJets.forEach(jet => {
-if (jet.rangeKms) {
-// Convert km to degrees for circle radius in equirectangular projection
-// 1 degree latitude is approx 111 km. So, radius in degrees = rangeKms / 111
-const radiusDegrees = jet.rangeKms / 111;
-
-g.append("circle")
-.attr("class", "range-circle")
-.attr("cx", projection(originCoords)[0])
-.attr("cy", projection(originCoords)[1])
-.attr("r", projection([originCoords[0] + radiusDegrees, originCoords[1]])[0] - projection(originCoords)[0]) // Scale radius based on projection
-.on("mouseover", function(event, d) {
-tooltip.style("opacity", 1)
-.html(`<strong>${jet.name}</strong><br>RANGE: ${jet.range}`)
-.style("left", (event.pageX + 10) + "px")
-.style("top", (event.pageY - 28) + "px");
-})
-.on("mouseout", function() {
-tooltip.style("opacity", 0);
-});
-
-g.append("text")
-.attr("class", "map-label")
-.attr("x", projection(originCoords)[0])
-.attr("y", projection(originCoords)[1] - (projection([originCoords[0] + radiusDegrees, originCoords[1]])[0] - projection(originCoords)[0]) - 10) // Position above circle
-.text(`${jet.name} (${jet.range})`);
-}
-});
-
-// Add zoom and pan functionality
-zoomBehavior = d3.zoom()
-.scaleExtent([1, 8]) // Zoom levels
-.on("zoom", (event) => {
-g.attr("transform", event.transform);
-});
-
-window.rangeMapSvg.call(zoomBehavior);
-
-}).catch(error => {
-console.error("Error loading world map data:", error);
-window.rangeMapSvg.append("text")
-.attr("x", "50%")
-.attr("y", "50%")
-.attr("text-anchor", "middle")
-.attr("dominant-baseline", "middle")
-.attr("fill", "#6b7280")
-.text("FAILED TO LOAD MAP DATA.");
-});
-}
-
-// Function to generate comparison summary using Gemini API
-async function generateComparisonSummary() {
-const selectedJetNames = [
-jetSelect1.value,
-jetSelect2.value,
-jetSelect3.value
-].filter(name => name !== "");
-
-if (selectedJetNames.length < 2) {
-generatedSummary.textContent = "CLASSIFIED: INSUFFICIENT ASSETS SELECTED FOR ANALYSIS. PLEASE SELECT AT LEAST TWO AIRCRAFT.";
-summarySection.classList.remove('hidden');
-return;
-}
-
-summarizeLoader.classList.remove('hidden'); // Show loader
-summarizeButton.disabled = true; // Disable button during loading
-generatedSummary.textContent = "INITIATING INTELLIGENCE PROTOCOL... PLEASE STAND BY."; // Clear previous summary
-summarySection.classList.remove('hidden'); // Show summary section
-
-const selectedJets = selectedJetNames.map(name => jetData.find(jet => jet.name === name));
-
-let prompt = "You are an expert in military aviation. Compare the following aircraft based on their specifications and key features, highlighting their strengths, weaknesses, and ideal operational roles. Focus on Max Speed (Mach and Km/h), Range (Km), Max Takeoff Weight (Kg), Unit Cost (M USD), Country of Origin, Operator Nations, Battle Tested status, Quantity Present, Stealth Rating (1-10 where 10 is highest stealth), and Destructiveness Rating (1-10 where 10 is highest destructiveness), and any notable key features. Present the information as a concise intelligence briefing, using military-style language and tone.\n\n";
-
-selectedJets.forEach((jet, index) => {
-prompt += `ASSET ${index + 1} DATA:\n`;
-prompt += ` - DESIGNATION: ${jet.name}\n`;
-prompt += ` - ROLE: ${jet.role}\n`;
-prompt += ` - ORIGIN: ${jet.countryOfOrigin}\n`;
-prompt += ` - OPERATOR NATIONS: ${jet.operatorCountries.join(', ')}\n`;
-prompt += ` - BATTLE TESTED: ${jet.battleTested ? 'YES' : 'NO'}\n`;
-prompt += ` - QUANTITY PRESENT: ${jet.quantity.toLocaleString()}\n`;
-prompt += ` - MAX VELOCITY: ${jet.maxSpeed}\n`;
-prompt += ` - OPERATIONAL RANGE: ${jet.range}\n`;
-prompt += ` - MAX GROSS WEIGHT: ${jet.maxTakeoffWeight}\n`;
-prompt += ` - UNIT COST: ${jet.unitCost}\n`;
-prompt += ` - STEALTH RATING: ${jet.stealthRating}/10\n`;
-prompt += ` - DESTRUCTIVENESS RATING: ${jet.destructivenessRating}/10\n`;
-prompt += ` - KEY CAPABILITY: ${jet.keyFeature}\n\n`;
-});
-
-prompt += "PROVIDE A CRITICAL ANALYSIS AND COMPARATIVE ASSESSMENT.";
-
-try {
-let chatHistory = [];
-chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-const payload = { contents: chatHistory };
-const apiKey = ""; // Leave this as-is; Canvas will automatically provide it.
-const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-const response = await fetch(apiUrl, {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify(payload)
-});
-
-const result = await response.json();
-
-if (result.candidates && result.candidates.length > 0 &&
-result.candidates[0].content && result.candidates[0].content.parts &&
-result.candidates[0].content.parts.length > 0) {
-const text = result.candidates[0].content.parts[0].text;
-generatedSummary.textContent = text;
-} else {
-generatedSummary.textContent = "ERROR: INTELLIGENCE BRIEFING FAILED TO GENERATE. RETRY PROTOCOL INITIATED.";
-console.error("Gemini API response structure unexpected:", result);
-}
-} catch (error) {
-generatedSummary.textContent = "ERROR: SECURE CONNECTION LOST. UNABLE TO RETRIEVE INTELLIGENCE BRIEFING. CHECK NETWORK AND RETRY.";
-console.error("Error calling Gemini API:", error);
-} finally {
-summarizeLoader.classList.add('hidden'); // Hide loader
-summarizeButton.disabled = false; // Re-enable button
-}
-}
-
-
-// Function to update comparison table and graphs
-function updateComparison() {
-const selectedJetNames = [
-jetSelect1.value,
-jetSelect2.value,
-jetSelect3.value
-].filter(name => name !== ""); // Filter out empty selections
-
-// Clear previous table content
-comparisonTableBody.innerHTML = '';
-headerCol1.textContent = '';
-headerCol2.textContent = '';
-headerCol3.textContent = '';
-
-// Clear previous images
-selectedJetImagesContainer.innerHTML = '';
-
-// Hide summary section and clear content when selections change
-summarySection.classList.add('hidden');
-generatedSummary.textContent = "";
-
-// Get selected jets data
-const selectedJets = jetData.filter(jet => selectedJetNames.includes(jet.name)); // Filter based on selected names
-
-// Display images for selected jets
-displaySelectedJetImages(selectedJets);
-
-// Populate headers
-if (selectedJets[0]) headerCol1.textContent = selectedJets[0].name.toUpperCase();
-if (selectedJets[1]) headerCol2.textContent = selectedJets[1].name.toUpperCase();
-if (selectedJets[2]) headerCol3.textContent = selectedJets[2].name.toUpperCase();
-
-// Define features to compare and their display names
-const features = [
-{ key: 'role', displayName: 'ROLE' },
-{ key: 'manufacturer', displayName: 'MANUFACTurer' },
-{ key: 'countryOfOrigin', displayName: 'COUNTRY OF ORIGIN' },
-{ key: 'operatorCountries', displayName: 'OPERATOR NATIONS', formatter: (val) => Array.isArray(val) ? val.join(', ') : val },
-{ key: 'battleTested', displayName: 'BATTLE TESTED', formatter: (val) => val ? '<span class="text-green-400 font-bold">YES</span>' : '<span class="text-red-400 font-bold">NO</span>' },
-{ key: 'quantity', displayName: 'QUANTITY PRESENT', formatter: (val) => val.toLocaleString() },
-{ key: 'firstFlight', displayName: 'FIRST FLIGHT' },
-{ key: 'maxSpeed', displayName: 'MAX SPEED' },
-{ key: 'range', displayName: 'RANGE' },
-{ key: 'armament', displayName: 'ARMAMENT' },
-{ key: 'crew', displayName: 'CREW' },
-{ key: 'engineThrust', displayName: 'ENGINE THRUST' },
-{ key: 'length', displayName: 'LENGTH' },
-{ key: 'wingspan', displayName: 'WINGSPAN' },
-{ key: 'maxTakeoffWeight', displayName: 'MAX TAKEOFF WEIGHT' },
-{ key: 'unitCost', displayName: 'UNIT COST' },
-{ key: 'keyFeature', displayName: 'KEY CAPABILITY' } // Removed stealth/destructiveness here
-];
-
-if (selectedJetNames.length === 0) {
-comparisonTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500">SELECT ASSETS FOR ANALYSIS.</td></tr>';
-} else {
-features.forEach(feature => {
-const row = document.createElement('tr');
-row.classList.add('table-row'); // Apply alternating row background
-
-const featureCell = document.createElement('td');
-featureCell.classList.add('py-3', 'px-4', 'border-b', 'border-gray-600', 'font-medium', 'text-gray-200');
-featureCell.textContent = feature.displayName;
-row.appendChild(featureCell);
-
-selectedJets.forEach(jet => {
-const dataCell = document.createElement('td');
-dataCell.classList.add('py-3', 'px-4', 'border-b', 'border-gray-600', 'text-gray-300');
-// Use formatter if available, otherwise default to direct value or 'N/A'
-dataCell.innerHTML = feature.formatter ? feature.formatter(jet[feature.key]) : (jet[feature.key] || 'N/A');
-row.appendChild(dataCell);
-});
-
-// Fill empty cells if fewer than 3 jets are selected
-for (let i = selectedJets.length; i < 3; i++) {
-const emptyCell = document.createElement('td');
-emptyCell.classList.add('py-3', 'px-4', 'border-b', 'border-gray-600', 'text-gray-500');
-emptyCell.textContent = 'N/A';
-row.appendChild(emptyCell);
-}
-comparisonTableBody.appendChild(row);
-});
-}
-
-// Draw charts
-drawBarChart(selectedJets, 'speedChart', 'maxSpeedMach', 'MAX SPEED', 'MACH');
-drawBarChart(selectedJets, 'rangeChart', 'rangeKms', 'RANGE', 'KM');
-drawBarChart(selectedJets, 'weightChart', 'maxTakeoffWeightKgs', 'MAX TAKEOFF WEIGHT', 'KG');
-drawBarChart(selectedJets, 'costChart', 'unitCostMillionUsd', 'UNIT COST', 'M USD');
-
-// Draw map and update ratings display
-drawRangeMap(selectedJets);
-updateRatingsDisplay(selectedJets); // Call the new function to update ratings display
-}
-
-// Function to update the new ratings display section
-function updateRatingsDisplay(selectedJets) {
-ratingsListContainer.innerHTML = ''; // Clear previous ratings
-
-if (selectedJets.length === 0) {
-ratingsListContainer.innerHTML = '<p class="text-center text-gray-500">SELECT JETS TO VIEW CAPABILITY RATINGS.</p>';
-return;
-}
-
-selectedJets.forEach(jet => {
-const ratingItemHtml = `
-<div class="rating-item">
-<span class="font-semibold text-blue-300">${jet.name.toUpperCase()}</span>
-<div>
-<span class="mr-4">Stealth: <span class="font-bold">${jet.stealthRating !== undefined ? `${jet.stealthRating}/10` : 'N/A'}</span></span>
-<span>Destructiveness: <span class="font-bold">${jet.destructivenessRating !== undefined ? `${jet.destructivenessRating}/10` : 'N/A'}</span></span>
-</div>
-</div>
-`;
-ratingsListContainer.insertAdjacentHTML('beforeend', ratingItemHtml);
-});
-}
-
-
-// Event listener for compare button
-compareButton.addEventListener('click', updateComparison);
-// Event listener for summarize button
-summarizeButton.addEventListener('click', generateComparisonSummary);
-
-// Event listeners for decade filters
-modernJetDecadeFilter.addEventListener('change', populateJetCards);
-legacyJetDecadeFilter.addEventListener('change', populateJetCards);
-futureJetDecadeFilter.addEventListener('change', populateJetCards);
-
-// Optional: Update table immediately if selections change without clicking button
-jetSelect1.addEventListener('change', updateComparison);
-jetSelect2.addEventListener('change', updateComparison);
-jetSelect3.addEventListener('change', updateComparison);
-
-// Initial setup when the window loads
-window.onload = function() {
-populateDropdowns();
-populateJetCards();
-updateComparison(); // Initial call to draw everything
-};
-
-// Resize charts and map on window resize
-window.addEventListener('resize', () => {
-const selectedJetNames = [jetSelect1.value, jetSelect2.value, jetSelect3.value].filter(name => name !== "");
-const selectedJets = jetData.filter(jet => selectedJetNames.includes(jet.name)); // Ensure selectedJets is correctly filtered
-updateComparison(); // Re-run the update to redraw charts and map with new dimensions
-});
-</script>
+    <header class="bg-gradient-to-r from-gray-900 to-gray-700 text-white py-6 shadow-lg rounded-b-xl border-b-2 border-blue-600">
+        <div class="container flex flex-col md:flex-row items-center justify-between">
+            <h1 class="text-3xl sm:text-4xl font-extrabold mb-4 md:mb-0 text-blue-400">JETSTREAM <span class="text-base sm:text-xl text-gray-400">// ELITE AVIATION DATABASE</span></h1>
+            <nav>
+                <ul class="flex flex-wrap justify-center space-x-2 sm:space-x-4 md:space-x-6 text-base sm:text-lg">
+                    <li><a href="#current-jets" class="hover:text-blue-400 transition duration-300 nav-link-orbitron">MODERN JETS</a></li>
+                    <li><a href="#historical-jets" class="hover:text-blue-400 transition duration-300 nav-link-orbitron">LEGACY JETS</a></li>
+                    <li><a href="#future-jets" class="hover:text-blue-400 transition duration-300 nav-link-orbitron">FUTURE CONCEPTS</a></li>
+                    <li><a href="#comparison" class="hover:text-blue-400 transition duration-300 nav-link-orbitron">TACTICAL OVERVIEW</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="bg-gray-800 text-white py-20 text-center rounded-xl mx-auto my-8 shadow-lg max-w-5xl animate-fade-in border-2 border-blue-600">
+        <div class="container">
+            <h2 class="text-4xl sm:text-5xl font-bold mb-6 text-blue-400">ACCESS CLASSIFIED AVIATION DATA</h2>
+            <p class="text-lg sm:text-xl leading-relaxed mb-8 text-gray-300">Analyze advanced combat platforms, historical marvels, and strategic bombers. Utilize our comprehensive database for threat assessment and operational planning.</p>
+            <a href="#comparison" class="bg-blue-600 text-white hover:bg-blue-700 px-6 py-3 sm:px-8 sm:py-4 rounded-full text-base sm:text-lg font-semibold shadow-md transition duration-300 transform hover:scale-105 border border-blue-400">INITIATE COMPARISON PROTOCOL</a>
+        </div>
+    </section>
+
+    <main class="container">
+
+        <section id="current-jets" class="py-12">
+            <h3 class="text-3xl sm:text-4xl font-bold text-center mb-10 text-blue-400 font-orbitron">MODERN JET FLEET</h3>
+            <div class="mb-6 flex flex-col sm:flex-row justify-end items-end sm:items-center">
+                <label for="modernJetDecadeFilter" class="block text-gray-400 text-sm font-bold mr-2 mb-2 sm:mb-0">FILTER BY DECADE:</label>
+                <select id="modernJetDecadeFilter" class="shadow border border-gray-600 bg-gray-700 text-gray-200 rounded-lg py-1 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 w-full sm:w-auto">
+                    <option value="all">ALL DECADES</option>
+                    </select>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                </div>
+        </section>
+
+        <section id="historical-jets" class="py-12">
+            <h3 class="text-3xl sm:text-4xl font-bold text-center mb-10 text-blue-400 font-orbitron">LEGACY JET ARCHIVE</h3>
+            <div class="mb-6 flex flex-col sm:flex-row justify-end items-end sm:items-center">
+                <label for="legacyJetDecadeFilter" class="block text-gray-400 text-sm font-bold mr-2 mb-2 sm:mb-0">FILTER BY DECADE:</label>
+                <select id="legacyJetDecadeFilter" class="shadow border border-gray-600 bg-gray-700 text-gray-200 rounded-lg py-1 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 w-full sm:w-auto">
+                    <option value="all">ALL DECADES</option>
+                    </select>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                </div>
+        </section>
+
+        <section id="future-jets" class="py-12">
+            <h3 class="text-3xl sm:text-4xl font-bold text-center mb-10 text-blue-400 font-orbitron">FUTURE CONCEPTS & PROTOTYPES</h3>
+            <div class="mb-6 flex flex-col sm:flex-row justify-end items-end sm:items-center">
+                <label for="futureJetDecadeFilter" class="block text-gray-400 text-sm font-bold mr-2 mb-2 sm:mb-0">FILTER BY DECADE:</label>
+                <select id="futureJetDecadeFilter" class="shadow border border-gray-600 bg-gray-700 text-gray-200 rounded-lg py-1 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 w-full sm:w-auto">
+                    <option value="all">ALL DECADES</option>
+                    </select>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                </div>
+        </section>
+
+        <section id="comparison" class="py-12">
+            <h3 class="text-3xl sm:text-4xl font-bold text-center mb-10 text-blue-400 font-orbitron">TACTICAL PERFORMANCE OVERVIEW</h3>
+
+            <div class="card p-6">
+                <p class="text-base sm:text-lg mb-4 text-gray-300">SELECT UP TO 3 AIRCRAFT FOR DETAILED ANALYSIS:</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label for="jetSelect1" class="block text-gray-400 text-sm font-bold mb-2">TARGET 1:</label>
+                        <select id="jetSelect1" class="shadow border border-gray-600 bg-gray-700 text-gray-200 rounded-lg w-full py-2 px-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+                            <option value="">-- SELECT ASSET --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="jetSelect2" class="block text-gray-400 text-sm font-bold mb-2">TARGET 2:</label>
+                        <select id="jetSelect2" class="shadow border border-gray-600 bg-gray-700 text-gray-200 rounded-lg w-full py-2 px-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+                            <option value="">-- SELECT ASSET --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="jetSelect3" class="block text-gray-400 text-sm font-bold mb-2">TARGET 3:</label>
+                        <select id="jetSelect3" class="shadow border border-gray-600 bg-gray-700 text-gray-200 rounded-lg w-full py-2 px-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+                            <option value="">-- SELECT ASSET --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button id="compareButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105 w-full sm:w-auto border border-blue-400">
+                        INITIATE COMPARISON
+                    </button>
+                    <button id="summarizeButton" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105 w-full sm:w-auto flex items-center justify-center">
+                        ✨ GENERATE INTELLIGENCE BRIEF
+                        <span id="summarizeLoader" class="loader hidden"></span>
+                    </button>
+                </div>
+
+
+                <div id="selectedJetImages" class="flex flex-wrap justify-center gap-4 mt-8">
+                    </div>
+
+                <div id="comparisonTableContainer" class="mt-8 relative">
+                    <table id="comparisonTable" class="min-w-full bg-gray-800 border border-gray-600 rounded-lg overflow-hidden text-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="py-3 px-4 text-left border-b border-gray-600 table-header rounded-tl-lg">PARAMETER</th>
+                                <th id="headerCol1" class="py-3 px-4 text-left border-b border-gray-600 table-header"></th>
+                                <th id="headerCol2" class="py-3 px-4 text-left border-b border-gray-600 table-header"></th>
+                                <th id="headerCol3" class="py-3 px-4 text-left border-b border-gray-600 table-header"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="comparisonTableBody">
+                            <tr><td colspan="4" class="text-center py-8 text-gray-500">SELECT ASSETS FOR ANALYSIS.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="summarySection" class="mt-8 p-6 bg-gray-700 border border-blue-600 rounded-lg shadow-inner hidden">
+                    <h4 class="text-xl sm:text-2xl font-bold text-blue-400 mb-4">INTELLIGENCE BRIEFING:</h4>
+                    <div id="generatedSummary" class="text-gray-300 leading-relaxed">
+                        </div>
+                </div>
+
+                <div id="assetRatingsSection" class="ratings-display-container">
+                    <h4 class="chart-title">ASSET CAPABILITY RATINGS</h4>
+                    <div id="ratingsList" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
+                        </div>
+                    <div class="rating-legend text-sm text-gray-400">
+                        <p class="font-bold mb-2">RATING SYSTEM LEGEND:</p>
+                        <p><strong>Stealth Rating (1-10):</strong></p>
+                        <ul class="list-disc list-inside ml-4">
+                            <li>**1:** Minimal/No Stealth (Easily detectable by conventional radar)</li>
+                            <li>**5:** Moderate Stealth (Reduced radar cross-section, detectable by advanced systems)</li>
+                            <li>**10:** Near Undetectable (Extremely low observable, designed to evade most detection systems)</li>
+                        </ul>
+                        <p class="font-bold mt-3 mb-2"><strong>Destructiveness Rating (1-10):</strong></p>
+                        <ul class="list-disc list-inside ml-4">
+                            <li>**1:** Limited Destructive Power (Primarily reconnaissance or light attack)</li>
+                            <li>**5:** Moderate Destructive Power (Standard combat loadout for fighter aircraft)</li>
+                            <li>**10:** Catastrophic Destructive Power (Heavy bomber payload, strategic strike capability)</li>
+                        </ul>
+                    </div>
+                </div>
+
+
+                <div id="rangeMapContainer" class="chart-container">
+                    <h4 class="chart-title">OPERATIONAL RANGE PROJECTION (FROM EQUATOR)</h4>
+                    <svg id="rangeMap" class="w-full h-96"></svg>
+                    <p class="text-sm text-gray-400 mt-4">Note: Map projection is for illustrative range comparison, not precise navigation.</p>
+                </div>
+
+                <div id="visualizationGraphs" class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div id="speedChartContainer" class="chart-container">
+                        <h4 class="chart-title">MAX SPEED (MACH)</h4>
+                        <svg id="speedChart"></svg>
+                    </div>
+                    <div id="rangeChartContainer" class="chart-container">
+                        <h4 class="chart-title">RANGE (KM)</h4>
+                        <svg id="rangeChart"></svg>
+                    </div>
+                    <div id="weightChartContainer" class="chart-container">
+                        <h4 class="chart-title">MAX TAKEOFF WEIGHT (KG)</h4>
+                        <svg id="weightChart"></svg>
+                    </div>
+                    <div id="costChartContainer" class="chart-container">
+                        <h4 class="chart-title">UNIT COST (M USD)</h4>
+                        <svg id="costChart"></svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-900 text-white py-8 mt-12 rounded-t-xl border-t-2 border-blue-600">
+        <div class="container text-center">
+            <p class="text-gray-400">Made by Zeeshan, Gemini integrated</p>
+            <p class="text-sm mt-2 text-gray-500">&copy; 2025 JETSTREAM. ALL RIGHTS RESERVED. // CLASSIFIED ACCESS ONLY</p>
+            <p class="text-sm mt-2 text-gray-500">DATA FOR INFORMATIONAL PURPOSES. MAY NOT BE EXHAUSTIVE.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Data for all jets, including new ones and converted units
+        const jetData = [
+            {
+                name: "F-22 Raptor",
+                category: "current",
+                role: "Air Superiority Fighter",
+                manufacturer: "Lockheed Martin / Boeing",
+                countryOfOrigin: "USA",
+                operatorCountries: ["USA"],
+                battleTested: true,
+                quantity: 187,
+                stealthRating: 9.5, // High stealth
+                destructivenessRating: 8.5, // High
+                firstFlight: "1997",
+                decade: 1990,
+                maxSpeed: "Mach 2.25+ (2,756 km/h)",
+                maxSpeedMach: 2.25,
+                speedKmh: 2756,
+                range: "2,900 km (combat)",
+                rangeKms: 2900,
+                armament: "M61A2 Vulcan, AIM-9, AIM-120",
+                crew: "1",
+                engineThrust: "2 x 35,000 lbf (afterburning)",
+                length: "18.9 m",
+                wingspan: "13.56 m",
+                maxTakeoffWeight: "37,875 kg",
+                maxTakeoffWeightKgs: 37875,
+                unitCost: "$150M",
+                unitCostMillionUsd: 150,
+                keyFeature: "Extreme stealth, Supercruise, Advanced avionics",
+                imageUrl: "f22.jpg"
+            },
+            {
+                name: "F-35 Lightning II",
+                category: "current",
+                role: "Multi-role Fighter",
+                manufacturer: "Lockheed Martin",
+                countryOfOrigin: "USA",
+                operatorCountries: ["USA", "UK", "Japan", "Israel", "Australia", "Canada", "Italy", "Netherlands", "Norway", "South Korea", "Belgium", "Denmark", "Finland", "Germany", "Poland", "Singapore", "Switzerland"],
+                battleTested: true,
+                quantity: 990, // Approx across all variants
+                stealthRating: 9.0, // High stealth
+                destructivenessRating: 8.0, // High
+                firstFlight: "2006",
+                decade: 2000,
+                maxSpeed: "Mach 1.6 (1,960 km/h)",
+                maxSpeedMach: 1.6,
+                speedKmh: 1960,
+                range: "2,170 km (combat)",
+                rangeKms: 2170,
+                armament: "GAU-22/A (F-35A), AIM-9X, AIM-120, JDAM",
+                crew: "1",
+                engineThrust: "1 x 43,000 lbf (afterburning)",
+                length: "15.67 m",
+                wingspan: "10.67 m",
+                maxTakeoffWeight: "31,751 kg",
+                maxTakeoffWeightKgs: 31751,
+                unitCost: "$80M - $110M",
+                unitCostMillionUsd: 95, // Average
+                keyFeature: "Stealth, Sensor fusion, STOVL (some variants)",
+                imageUrl: "f35.jpg"
+            },
+            {
+                name: "Su-57 Felon",
+                category: "current",
+                role: "Multi-role Stealth Fighter",
+                manufacturer: "Sukhoi",
+                countryOfOrigin: "Russia",
+                operatorCountries: ["Russia"],
+                battleTested: true,
+                quantity: 20, // Limited production
+                stealthRating: 7.5, // Moderate stealth
+                destructivenessRating: 7.0, // Moderate
+                firstFlight: "2010",
+                decade: 2010,
+                maxSpeed: "Mach 2.0 (2,450 km/h)",
+                maxSpeedMach: 2.0,
+                speedKmh: 2450,
+                range: "3,500 km",
+                rangeKms: 3500,
+                armament: "GSh-30-1, R-77, R-73, Kh-31",
+                crew: "1",
+                engineThrust: "2 x 33,000 lbf (afterburning)",
+                length: "20.1 m",
+                wingspan: "14.1 m",
+                maxTakeoffWeight: "35,000 kg",
+                maxTakeoffWeightKgs: 35000,
+                unitCost: "$40M",
+                unitCostMillionUsd: 40,
+                keyFeature: "Stealth, Supercruise, Thrust vectoring",
+                imageUrl: "su57.jpg"
+            },
+            {
+                name: "Eurofighter Typhoon",
+                category: "current",
+                role: "Multi-role Fighter",
+                manufacturer: "Eurofighter GmbH",
+                countryOfOrigin: "Multi-national (UK, Germany, Italy, Spain)",
+                operatorCountries: ["UK", "Germany", "Italy", "Spain", "Austria", "Saudi Arabia", "Oman", "Kuwait", "Qatar"],
+                battleTested: true,
+                quantity: 570,
+                stealthRating: 5.0, // Low stealth (4.5 gen)
+                destructivenessRating: 7.5, // High
+                firstFlight: "1994",
+                decade: 1990,
+                maxSpeed: "Mach 2.0 (2,450 km/h)",
+                maxSpeedMach: 2.0,
+                speedKmh: 2450,
+                range: "2,900 km",
+                rangeKms: 2900,
+                armament: "Mauser BK-27, AIM-120, IRIS-T, Storm Shadow",
+                crew: "1",
+                engineThrust: "2 x 20,250 lbf (afterburning)",
+                length: "15.96 m",
+                wingspan: "11.1 m",
+                maxTakeoffWeight: "23,500 kg",
+                maxTakeoffWeightKgs: 23500,
+                unitCost: "$120M",
+                unitCostMillionUsd: 120,
+                keyFeature: "Agility, Advanced radar, Swing-role capability",
+                imageUrl: "eurofighter.jpg"
+            },
+            {
+                name: "Dassault Rafale",
+                category: "current",
+                role: "Omnirole Fighter",
+                manufacturer: "Dassault Aviation",
+                countryOfOrigin: "France",
+                operatorCountries: ["France", "Egypt", "Qatar", "India", "Greece", "Croatia", "Indonesia", "UAE"],
+                battleTested: true,
+                quantity: 250,
+                stealthRating: 5.5, // Low stealth (4.5 gen)
+                destructivenessRating: 7.0, // Moderate
+                firstFlight: "1986",
+                decade: 1980,
+                maxSpeed: "Mach 1.8 (2,205 km/h)",
+                maxSpeedMach: 1.8,
+                speedKmh: 2205,
+                range: "3,700 km (ferry)",
+                rangeKms: 3700,
+                armament: "30 mm GIAT 30, MICA, Meteor, Scalp EG",
+                crew: "1-2",
+                engineThrust: "2 x 16,860 lbf (afterburning)",
+                length: "15.27 m",
+                wingspan: "10.8 m",
+                maxTakeoffWeight: "24,500 kg",
+                maxTakeoffWeightKgs: 24500,
+                unitCost: "$100M",
+                unitCostMillionUsd: 100,
+                keyFeature: "Omnirole capability, Canard-delta wing, SPECTRA EW suite",
+                imageUrl: "rafale.jpg"
+            },
+            {
+                name: "J-20 Mighty Dragon",
+                category: "current",
+                role: "Multi-role Stealth Fighter",
+                manufacturer: "Chengdu Aerospace Corporation",
+                countryOfOrigin: "China",
+                operatorCountries: ["China"],
+                battleTested: false, // No publicly known combat
+                quantity: 200, // Estimated
+                stealthRating: 8.0, // High stealth
+                destructivenessRating: 7.5, // High
+                firstFlight: "2011",
+                decade: 2010,
+                maxSpeed: "Mach 2.0+ (2,450 km/h)",
+                maxSpeedMach: 2.0,
+                speedKmh: 2450,
+                range: "5,500 km (ferry)",
+                rangeKms: 5500,
+                armament: "PL-10, PL-15, PL-21",
+                crew: "1",
+                engineThrust: "2 x 32,000 lbf (afterburning) (estimated)",
+                length: "20.4 m",
+                wingspan: "13.5 m",
+                maxTakeoffWeight: "37,000 kg",
+                maxTakeoffWeightKgs: 37000,
+                unitCost: "$110M",
+                unitCostMillionUsd: 110,
+                keyFeature: "Stealth, Long-range, Large internal weapons bay",
+                imageUrl: "j20f.jpg"
+            },
+            {
+                name: "F-15 Eagle",
+                category: "current",
+                role: "Air Superiority Fighter",
+                manufacturer: "McDonnell Douglas (now Boeing)",
+                countryOfOrigin: "USA",
+                operatorCountries: ["USA", "Japan", "Saudi Arabia", "Israel", "South Korea", "Singapore", "Qatar"],
+                battleTested: true,
+                quantity: 1200,
+                stealthRating: 2.0, // Non-stealthy
+                destructivenessRating: 6.5, // Moderate
+                firstFlight: "1972",
+                decade: 1970,
+                maxSpeed: "Mach 2.5+ (3,063 km/h)",
+                maxSpeedMach: 2.5,
+                speedKmh: 3063,
+                range: "5,550 km (ferry)",
+                rangeKms: 5550,
+                armament: "M61 Vulcan, AIM-7, AIM-9, AIM-120",
+                crew: "1-2",
+                engineThrust: "2 x 23,450 lbf (afterburning)",
+                length: "19.43 m",
+                wingspan: "13.05 m",
+                maxTakeoffWeight: "36,741 kg",
+                maxTakeoffWeightKgs: 36741,
+                unitCost: "$30M",
+                unitCostMillionUsd: 30,
+                keyFeature: "Exceptional speed and climb, Proven combat record",
+                imageUrl: "f15.jpg"
+            },
+            {
+                name: "F-16 Fighting Falcon",
+                category: "current",
+                role: "Multi-role Fighter",
+                manufacturer: "General Dynamics (now Lockheed Martin)",
+                countryOfOrigin: "USA",
+                operatorCountries: ["USA", "Belgium", "Denmark", "Egypt", "Greece", "Israel", "Jordan", "Netherlands", "Norway", "Pakistan", "Poland", "Portugal", "South Korea", "Taiwan", "Thailand", "Turkey", "Venezuela", "UAE", "Bahrain", "Chile", "Indonesia", "Iraq", "Oman", "Romania", "Singapore", "Slovakia", "Morocco", "Bulgaria", "Croatia"],
+                battleTested: true,
+                quantity: 4600,
+                stealthRating: 1.5, // Non-stealthy
+                destructivenessRating: 6.0, // Moderate
+                firstFlight: "1974",
+                decade: 1970,
+                maxSpeed: "Mach 2.05 (2,511 km/h)",
+                maxSpeedMach: 2.05,
+                speedKmh: 2511,
+                range: "3,200 km (ferry)",
+                rangeKms: 3200,
+                armament: "M61 Vulcan, AIM-9, AIM-120, various bombs",
+                crew: "1",
+                engineThrust: "1 x 29,000 lbf (afterburning)",
+                length: "15.06 m",
+                wingspan: "9.96 m",
+                maxTakeoffWeight: "19,187 kg",
+                maxTakeoffWeightKgs: 19187,
+                unitCost: "$20M",
+                unitCostMillionUsd: 20,
+                keyFeature: "Agile, Cost-effective, Widely Exported",
+                imageUrl: "f16f.jpg"
+            },
+            {
+                name: "A-10 Thunderbolt II",
+                category: "current",
+                role: "Close Air Support",
+                manufacturer: "Fairchild Republic",
+                countryOfOrigin: "USA",
+                operatorCountries: ["USA"],
+                battleTested: true,
+                quantity: 280,
+                stealthRating: 0.5, // Very low stealth
+                destructivenessRating: 8.0, // High (specialized for ground attack)
+                firstFlight: "1972",
+                decade: 1970,
+                maxSpeed: "724 km/h (Mach 0.59)",
+                maxSpeedMach: 0.59,
+                speedKmh: 724,
+                range: "4,150 km (ferry)",
+                rangeKms: 4150,
+                armament: "GAU-8/A Avenger, AGM-65 Maverick, various bombs",
+                crew: "1",
+                engineThrust: "2 x 9,065 lbf (turbofan)",
+                length: "16.26 m",
+                wingspan: "17.53 m",
+                maxTakeoffWeight: "22,680 kg",
+                maxTakeoffWeightKgs: 22680,
+                unitCost: "$19M",
+                unitCostMillionUsd: 19,
+                keyFeature: "Armored, GAU-8 Cannon, CAS Specialist",
+                imageUrl: "a10.jpg"
+            },
+            {
+                name: "F/A-18 Super Hornet",
+                category: "current",
+                role: "Multi-role Combat Jet",
+                manufacturer: "McDonnell Douglas (now Boeing)",
+                countryOfOrigin: "USA",
+                operatorCountries: ["USA", "Australia", "Canada", "Kuwait", "Malaysia", "Spain", "Switzerland"],
+                battleTested: true,
+                quantity: 600,
+                stealthRating: 3.0, // Low stealth
+                destructivenessRating: 7.0, // Moderate
+                firstFlight: "1995",
+                decade: 1990,
+                maxSpeed: "Mach 1.8 (2,205 km/h)",
+                maxSpeedMach: 1.8,
+                speedKmh: 2205,
+                range: "3,330 km (ferry)",
+                rangeKms: 3330,
+                armament: "M61A2 Vulcan, AIM-9, AIM-120, JDAM, Harpoon",
+                crew: "1-2",
+                engineThrust: "2 x 22,000 lbf (afterburning)",
+                length: "18.31 m",
+                wingspan: "13.62 m",
+                maxTakeoffWeight: "29,937 kg",
+                maxTakeoffWeightKgs: 29937,
+                unitCost: "$70M",
+                unitCostMillionUsd: 70,
+                keyFeature: "Carrier-capable, Versatile, Advanced avionics",
+                imageUrl: "fa18.jpg"
+            },
+            {
+                name: "Saab Gripen",
+                category: "current",
+                role: "Lightweight Multi-role Fighter",
+                manufacturer: "Saab AB",
+                countryOfOrigin: "Sweden",
+                operatorCountries: ["Sweden", "Czech Republic", "Hungary", "South Africa", "Thailand", "Brazil"],
+                battleTested: false, // No publicly known combat
+                quantity: 270,
+                stealthRating: 3.5, // Low stealth
+                destructivenessRating: 5.5, // Moderate
+                firstFlight: "1988",
+                decade: 1980,
+                maxSpeed: "Mach 2.0 (2,450 km/h)",
+                maxSpeedMach: 2.0,
+                speedKmh: 2450,
+                range: "3,200 km (ferry)",
+                rangeKms: 3200,
+                armament: "27 mm Mauser BK-27, AIM-9, AIM-120, Meteor",
+                crew: "1",
+                engineThrust: "1 x 18,000 lbf (afterburning)",
+                length: "14.1 m",
+                wingspan: "8.4 m",
+                maxTakeoffWeight: "14,000 kg",
+                maxTakeoffWeightKgs: 14000,
+                unitCost: "$60M",
+                unitCostMillionUsd: 60,
+                keyFeature: "Cost-effective, Agile, Short field capability",
+                imageUrl: "gripen.jpg"
+            },
+            {
+                name: "Sukhoi Su-35",
+                category: "current",
+                role: "Multi-role Super-maneuverable Fighter",
+                manufacturer: "Sukhoi",
+                countryOfOrigin: "Russia",
+                operatorCountries: ["Russia", "China", "Egypt", "Indonesia"],
+                battleTested: true,
+                quantity: 150,
+                stealthRating: 4.0, // Low stealth (4++ gen)
+                destructivenessRating: 7.0, // Moderate
+                firstFlight: "2008",
+                decade: 2000,
+                maxSpeed: "Mach 2.25 (2,756 km/h)",
+                maxSpeedMach: 2.25,
+                speedKmh: 2756,
+                range: "3,600 km",
+                rangeKms: 3600,
+                armament: "30 mm GSh-30-1, R-77, R-73, Kh-31",
+                crew: "1",
+                engineThrust: "2 x 31,900 lbf (afterburning)",
+                length: "21.9 m",
+                wingspan: "15.3 m",
+                maxTakeoffWeight: "34,500 kg",
+                maxTakeoffWeightKgs: 34500,
+                unitCost: "$85M",
+                unitCostMillionUsd: 85,
+                keyFeature: "Super-maneuverability, Thrust vectoring, Powerful radar",
+                imageUrl: "su35.jpg"
+            },
+            {
+                name: "B-2 Spirit",
+                category: "current",
+                role: "Stealth Strategic Bomber",
+                manufacturer: "Northrop Grumman",
+                countryOfOrigin: "USA",
+                operatorCountries: ["USA"],
+                battleTested: true,
+                quantity: 20,
+                stealthRating: 10.0, // Extremely high stealth
+                destructivenessRating: 9.5, // Extremely high
+                firstFlight: "1989",
+                decade: 1980,
+                maxSpeed: "1,010 km/h (Mach 0.81)",
+                maxSpeedMach: 0.81,
+                speedKmh: 1010,
+                range: "11,000 km (unrefueled)",
+                rangeKms: 11000,
+                armament: "Up to 18,000 kg of bombs (conventional/nuclear)",
+                crew: "2",
+                engineThrust: "4 x 17,300 lbf (turbofan)",
+                length: "21.0 m",
+                wingspan: "52.4 m",
+                maxTakeoffWeight: "170,000 kg",
+                maxTakeoffWeightKgs: 170000,
+                unitCost: "$2.1B",
+                unitCostMillionUsd: 2100, // Billions
+                keyFeature: "Extreme stealth, Large payload, Global reach",
+                imageUrl: "b2.jpg"
+            },
+            {
+                name: "B-52 Stratofortress",
+                category: "current",
+                role: "Long-range, Subsonic, Jet-powered Strategic Bomber",
+                manufacturer: "Boeing",
+                countryOfOrigin: "USA",
+                operatorCountries: ["USA"],
+                battleTested: true,
+                quantity: 76,
+                stealthRating: 0.1, // No stealth
+                destructivenessRating: 9.0, // High
+                firstFlight: "1952",
+                decade: 1950,
+                maxSpeed: "1,047 km/h (Mach 0.86)",
+                maxSpeedMach: 0.86,
+                speedKmh: 1047,
+                range: "14,162 km (combat)",
+                rangeKms: 14162,
+                armament: "Up to 31,500 kg of bombs, mines, missiles (conventional/nuclear)",
+                crew: "5",
+                engineThrust: "8 x 17,000 lbf (turbofan)",
+                length: "48.5 m",
+                wingspan: "56.4 m",
+                maxTakeoffWeight: "219,600 kg",
+                maxTakeoffWeightKgs: 219600,
+                unitCost: "$87M",
+                unitCostMillionUsd: 87,
+                keyFeature: "Heavy payload, Long endurance, Adaptable to various missions",
+                imageUrl: "b52.jpg"
+            },
+            {
+                name: "Tu-160 Blackjack",
+                category: "current",
+                role: "Supersonic Strategic Bomber",
+                manufacturer: "Tupolev",
+                countryOfOrigin: "Russia",
+                operatorCountries: ["Russia"],
+                battleTested: true,
+                quantity: 16,
+                stealthRating: 1.0, // Low stealth
+                destructivenessRating: 9.0, // High
+                firstFlight: "1981",
+                decade: 1980,
+                maxSpeed: "Mach 2.05 (2,500 km/h)",
+                maxSpeedMach: 2.05,
+                speedKmh: 2500,
+                range: "12,300 km (unrefueled)",
+                rangeKms: 12300,
+                armament: "Up to 40,000 kg of missiles (cruise, nuclear, anti-ship)",
+                crew: "4",
+                engineThrust: "4 x 55,100 lbf (afterburning)",
+                length: "54.1 m",
+                wingspan: "55.7 m (spread) / 35.6 m (swept)",
+                maxTakeoffWeight: "275,000 kg",
+                maxTakeoffWeightKgs: 275000,
+                unitCost: "$250M",
+                unitCostMillionUsd: 250,
+                keyFeature: "Variable-sweep wing, Supersonic dash, Largest combat aircraft",
+                imageUrl: "tu160.jpg"
+            },
+            {
+                name: "F-4 Phantom II",
+                category: "historical",
+                role: "Interceptor, Fighter-bomber",
+                manufacturer: "McDonnell Douglas",
+                countryOfOrigin: "USA",
+                operatorCountries: ["USA", "Germany", "Japan", "Israel", "UK", "Greece", "Turkey", "Iran", "South Korea", "Egypt", "Spain", "Australia"],
+                battleTested: true,
+                quantity: 5195,
+                stealthRating: 0.5, // Very low stealth
+                destructivenessRating: 5.0, // Moderate
+                firstFlight: "1958",
+                decade: 1950,
+                maxSpeed: "Mach 2.23 (2,730 km/h)",
+                maxSpeedMach: 2.23,
+                speedKmh: 2730,
+                range: "2,600 km",
+                rangeKms: 2600,
+                armament: "M61 Vulcan (later models), AIM-7, AIM-9, Bombs",
+                crew: "2",
+                engineThrust: "2 x 17,900 lbf (afterburning)",
+                length: "17.7 m",
+                wingspan: "11.7 m",
+                maxTakeoffWeight: "28,029 kg",
+                maxTakeoffWeightKgs: 28029,
+                unitCost: "$2.4M",
+                unitCostMillionUsd: 2.4,
+                keyFeature: "Versatility, Robust design, Long service life",
+                imageUrl: "f4 phantom.jpg"
+            },
+            {
+                name: "MiG-21 Fishbed",
+                category: "historical",
+                role: "Interceptor, Fighter",
+                manufacturer: "Mikoyan-Gurevich",
+                countryOfOrigin: "Soviet Union",
+                operatorCountries: ["Soviet Union", "India", "China", "Egypt", "Vietnam", "Cuba", "North Korea", "Syria", "Poland", "Romania", "Hungary", "Czechoslovakia", "East Germany", "Finland", "Yugoslavia", "Algeria", "Angola", "Ethiopia", "Libya", "Mozambique", "Nigeria", "Somalia", "Sudan", "Tanzania", "Uganda", "Zambia", "Afghanistan", "Bangladesh", "Bulgaria", "Cambodia", "Congo", "Croatia", "Eritrea", "Guinea", "Guinea-Bissau", "Laos", "Madagascar", "Mali", "Mongolia", "Myanmar", "Peru", "Serbia", "Slovakia", "Sri Lanka", "Syria", "Uganda", "Yemen"],
+                battleTested: true,
+                quantity: 11496,
+                stealthRating: 0.2, // Very low stealth
+                destructivenessRating: 4.5, // Moderate
+                firstFlight: "1955",
+                decade: 1950,
+                maxSpeed: "Mach 2.05 (2,511 km/h)",
+                maxSpeedMach: 2.05,
+                speedKmh: 2511,
+                range: "1,090 km",
+                rangeKms: 1090,
+                armament: "GSh-23, R-3S (AA-2 Atoll)",
+                crew: "1",
+                engineThrust: "1 x 14,550 lbf (afterburning)",
+                length: "15.76 m",
+                wingspan: "7.15 m",
+                maxTakeoffWeight: "9,290 kg",
+                maxTakeoffWeightKgs: 9290,
+                unitCost: "$1.5M",
+                unitCostMillionUsd: 1.5,
+                keyFeature: "Lightweight, High speed, Widely produced",
+                imageUrl: "mig21.jpg"
+            },
+            {
+                name: "SR-71 Blackbird",
+                category: "historical",
+                role: "Strategic Reconnaissance",
+                manufacturer: "Lockheed",
+                countryOfOrigin: "USA",
+                operatorCountries: ["USA"],
+                battleTested: false, // Never fired a shot in anger
+                quantity: 32,
+                stealthRating: 6.0, // Early form of stealth
+                destructivenessRating: 2.0, // Low (reconnaissance, no armament)
+                firstFlight: "1964",
+                decade: 1960,
+                maxSpeed: "Mach 3.3+ (4,040 km/h)",
+                maxSpeedMach: 3.3,
+                speedKmh: 4040,
+                range: "5,150 km",
+                rangeKms: 5150,
+                armament: "None",
+                crew: "2",
+                engineThrust: "2 x 34,000 lbf (afterburning)",
+                length: "32.74 m",
+                wingspan: "16.94 m",
+                maxTakeoffWeight: "78,000 kg",
+                maxTakeoffWeightKgs: 78000,
+                unitCost: "$34M",
+                unitCostMillionUsd: 34,
+                keyFeature: "Extreme speed, High altitude, Stealth (early form)",
+                imageUrl: "sr71.jpg"
+            },
+            {
+                name: "Concorde",
+                category: "historical",
+                role: "Supersonic Passenger Airliner",
+                manufacturer: "Aérospatiale / British Aircraft Corp.",
+                countryOfOrigin: "Multi-national (France, UK)",
+                operatorCountries: ["British Airways", "Air France"],
+                battleTested: false, // Civilian
+                quantity: 20,
+                stealthRating: 0.0, // Not applicable
+                destructivenessRating: 0.0, // Not applicable
+                firstFlight: "1969",
+                decade: 1960,
+                maxSpeed: "Mach 2.04 (2,496 km/h)",
+                maxSpeedMach: 2.04,
+                speedKmh: 2496,
+                range: "7,222 km",
+                rangeKms: 7222,
+                armament: "None",
+                crew: "3 (flight deck)",
+                engineThrust: "4 x 38,050 lbf (afterburning)",
+                length: "61.66 m",
+                wingspan: "25.6 m",
+                maxTakeoffWeight: "185,000 kg",
+                maxTakeoffWeightKgs: 185000,
+                unitCost: "$23M",
+                unitCostMillionUsd: 23,
+                keyFeature: "Commercial supersonic flight, Delta wing",
+                imageUrl: "concorde.jpg"
+            },
+            {
+                name: "F-14 Tomcat",
+                category: "historical",
+                role: "Supersonic, Twin-engine, Two-seat, Twin-tail, Variable-sweep wing fighter",
+                manufacturer: "Grumman",
+                countryOfOrigin: "USA",
+                operatorCountries: ["USA", "Iran"],
+                battleTested: true,
+                quantity: 712,
+                stealthRating: 1.0, // Non-stealthy
+                destructivenessRating: 6.0, // Moderate
+                firstFlight: "1970",
+                decade: 1970,
+                maxSpeed: "Mach 2.34 (2,860 km/h)",
+                maxSpeedMach: 2.34,
+                speedKmh: 2860,
+                range: "2,963 km (combat)",
+                rangeKms: 2963,
+                armament: "M61A1 Vulcan, AIM-54 Phoenix, AIM-7 Sparrow, AIM-9 Sidewinder",
+                crew: "2",
+                engineThrust: "2 x 20,900 lbf (afterburning)",
+                length: "19.1 m",
+                wingspan: "19.55 m (spread) / 11.65 m (swept)",
+                maxTakeoffWeight: "33,724 kg",
+                maxTakeoffWeightKgs: 33724,
+                unitCost: "$38M",
+                unitCostMillionUsd: 38,
+                keyFeature: "Variable-sweep wings, AIM-54 Phoenix missile, Naval air superiority",
+                imageUrl: "f14.jpg"
+            },
+            {
+                name: "MiG-29 Fulcrum",
+                category: "historical",
+                role: "Air Superiority Fighter",
+                manufacturer: "Mikoyan",
+                countryOfOrigin: "Soviet Union",
+                operatorCountries: ["Russia", "India", "Ukraine", "Poland", "Germany", "Hungary", "Bulgaria", "Romania", "Serbia", "Algeria", "Bangladesh", "Cuba", "Eritrea", "Iran", "Kazakhstan", "Myanmar", "North Korea", "Peru", "Slovakia", "Sudan", "Syria", "Turkmenistan", "Uzbekistan", "Yemen"],
+                battleTested: true,
+                quantity: 1600,
+                stealthRating: 1.0, // Non-stealthy
+                destructivenessRating: 5.5, // Moderate
+                firstFlight: "1977",
+                decade: 1970,
+                maxSpeed: "Mach 2.25 (2,756 km/h)",
+                maxSpeedMach: 2.25,
+                speedKmh: 2756,
+                range: "2,100 km (ferry)",
+                rangeKms: 2100,
+                armament: "30 mm GSh-30-1, R-73, R-27",
+                crew: "1",
+                engineThrust: "2 x 18,300 lbf (afterburning)",
+                length: "17.37 m",
+                wingspan: "11.4 m",
+                maxTakeoffWeight: "18,500 kg",
+                maxTakeoffWeightKgs: 18500,
+                unitCost: "$29M",
+                unitCostMillionUsd: 29,
+                keyFeature: "Highly maneuverable, Helmet-mounted sight",
+                imageUrl: "mig29.jpg"
+            },
+            {
+                name: "Panavia Tornado",
+                category: "historical",
+                role: "Multi-role Combat Aircraft",
+                manufacturer: "Panavia Aircraft GmbH",
+                countryOfOrigin: "Multi-national (UK, Germany, Italy)",
+                operatorCountries: ["UK", "Germany", "Italy", "Saudi Arabia"],
+                battleTested: true,
+                quantity: 992,
+                stealthRating: 0.8, // Very low stealth
+                destructivenessRating: 6.5, // Moderate
+                firstFlight: "1974",
+                decade: 1970,
+                maxSpeed: "Mach 2.2 (2,700 km/h)",
+                maxSpeedMach: 2.2,
+                speedKmh: 2700,
+                range: "1,390 km (combat)",
+                rangeKms: 1390,
+                armament: "27 mm Mauser BK-27, ASRAAM, Storm Shadow, Brimstone",
+                crew: "2",
+                engineThrust: "2 x 16,000 lbf (afterburning)",
+                length: "16.72 m",
+                wingspan: "13.91 m (spread) / 8.6 m (swept)",
+                maxTakeoffWeight: "28,000 kg",
+                maxTakeoffWeightKgs: 28000,
+                unitCost: "$50M",
+                unitCostMillionUsd: 50,
+                keyFeature: "Variable-sweep wing, Low-level penetration, All-weather capability",
+                imageUrl: "panavia.jpg"
+            },
+            {
+                name: "F-117 Nighthawk",
+                category: "historical",
+                role: "Stealth Attack Aircraft",
+                manufacturer: "Lockheed",
+                countryOfOrigin: "USA",
+                operatorCountries: ["USA"],
+                battleTested: true,
+                quantity: 59,
+                stealthRating: 8.5, // High stealth for its era
+                destructivenessRating: 6.0, // Moderate (precision strike)
+                firstFlight: "1981",
+                decade: 1980,
+                maxSpeed: "993 km/h (Mach 0.8)",
+                maxSpeedMach: 0.8,
+                speedKmh: 993,
+                range: "1,720 km (combat)",
+                rangeKms: 1720,
+                armament: "Internal bay for 2,300 kg of bombs/missiles (e.g., JDAM, GBU-27)",
+                crew: "1",
+                engineThrust: "2 x 10,800 lbf (turbofan)",
+                length: "20.08 m",
+                wingspan: "13.2 m",
+                maxTakeoffWeight: "23,814 kg",
+                maxTakeoffWeightKgs: 23814,
+                unitCost: "$111M",
+                unitCostMillionUsd: 111,
+                keyFeature: "First operational stealth aircraft, Faceted design",
+                imageUrl: "f117.jpg"
+            },
+            {
+                name: "B-1 Lancer",
+                category: "historical",
+                role: "Supersonic Variable-sweep Wing Strategic Bomber",
+                manufacturer: "Rockwell International (now Boeing)",
+                countryOfOrigin: "USA",
+                operatorCountries: ["USA"],
+                battleTested: true,
+                quantity: 100,
+                stealthRating: 1.5, // Low stealth
+                destructivenessRating: 9.0, // High
+                firstFlight: "1974",
+                decade: 1970,
+                maxSpeed: "Mach 1.25 (1,530 km/h)",
+                maxSpeedMach: 1.25,
+                speedKmh: 1530,
+                range: "9,600 km (unrefueled)",
+                rangeKms: 9600,
+                armament: "Up to 34,000 kg internal, 27,000 kg external (bombs, missiles)",
+                crew: "4",
+                engineThrust: "4 x 30,780 lbf (afterburning)",
+                length: "44.5 m",
+                wingspan: "41.67 m (spread) / 24.1 m (swept)",
+                maxTakeoffWeight: "216,400 kg",
+                maxTakeoffWeightKgs: 216400,
+                unitCost: "$280M",
+                unitCostMillionUsd: 280,
+                keyFeature: "Supersonic, Variable-sweep wing, Large payload capacity",
+                imageUrl: "b1lancer.jpg"
+            },
+            {
+                name: "NGAD Fighter (Hypothetical)",
+                category: "future",
+                role: "Next-Generation Air Dominance Fighter",
+                manufacturer: "Undisclosed",
+                countryOfOrigin: "USA (Projected)",
+                operatorCountries: ["USA (Projected)"],
+                battleTested: false,
+                quantity: 0, // In development
+                stealthRating: 9.8, // Extremely high stealth (projected)
+                destructivenessRating: 9.0, // High (projected)
+                firstFlight: "2030 (Projected)",
+                decade: 2030,
+                maxSpeed: "Mach 3.0+ (3,675 km/h)",
+                maxSpeedMach: 3.0,
+                speedKmh: 3675,
+                range: "6,000 km+ (combat)",
+                rangeKms: 6000,
+                armament: "Advanced internal weapons, Directed energy weapons (concept)",
+                crew: "1 (AI-assisted)",
+                engineThrust: "Adaptive cycle engines (concept)",
+                length: "25 m (estimated)",
+                wingspan: "18 m (estimated)",
+                maxTakeoffWeight: "45,000 kg (estimated)",
+                maxTakeoffWeightKgs: 45000,
+                unitCost: "$300M+",
+                unitCostMillionUsd: 300,
+                keyFeature: "Extreme stealth, AI integration, Networked warfare, Hypersonic capability",
+                imageUrl: "https://placehold.co/300x200/1a202c/63b3ed?text=NGAD+FIGHTER+CONCEPT"
+            },
+            {
+                name: "B-21 Raider",
+                category: "future",
+                role: "Stealth Strategic Bomber",
+                manufacturer: "Northrop Grumman",
+                countryOfOrigin: "USA",
+                operatorCountries: ["USA"],
+                battleTested: false, // In testing
+                quantity: 6, // Prototypes/early production
+                stealthRating: 9.9, // Extremely high stealth
+                destructivenessRating: 9.8, // Extremely high
+                firstFlight: "2023",
+                decade: 2020,
+                maxSpeed: "Subsonic (950 km/h)",
+                maxSpeedMach: 0.77,
+                speedKmh: 950,
+                range: "10,000 km+ (unrefueled)",
+                rangeKms: 10000,
+                armament: "Conventional and nuclear munitions",
+                crew: "2",
+                engineThrust: "Undisclosed",
+                length: "Undisclosed",
+                wingspan: "Undisclosed",
+                maxTakeoffWeight: "Undisclosed",
+                maxTakeoffWeightKgs: 150000, // Estimated
+                unitCost: "$700M+",
+                unitCostMillionUsd: 700,
+                keyFeature: "Next-gen stealth, Open-architecture systems, Long-range strike",
+                imageUrl: "https://placehold.co/300x200/1a202c/63b3ed?text=B-21+RAIDER+CONCEPT"
+            },
+            {
+                name: "Hypersonic Interceptor (Concept)",
+                category: "future",
+                role: "High-Altitude, High-Speed Interceptor",
+                manufacturer: "Various (Concept)",
+                countryOfOrigin: "Multi-national (Concept)",
+                operatorCountries: ["N/A"],
+                battleTested: false,
+                quantity: 0,
+                stealthRating: 7.0, // Moderate stealth (focus on speed)
+                destructivenessRating: 8.0, // High
+                firstFlight: "2040s (Projected)",
+                decade: 2040,
+                maxSpeed: "Mach 5.0+ (6,125 km/h)",
+                maxSpeedMach: 5.0,
+                speedKmh: 6125,
+                range: "3,000 km (intercept)",
+                rangeKms: 3000,
+                armament: "Hypersonic missiles, Advanced directed energy",
+                crew: "1",
+                engineThrust: "Scramjet/Ramjet hybrid (concept)",
+                length: "30 m (estimated)",
+                wingspan: "10 m (estimated)",
+                maxTakeoffWeight: "20,000 kg (estimated)",
+                maxTakeoffWeightKgs: 20000,
+                unitCost: "$200M+",
+                unitCostMillionUsd: 200,
+                keyFeature: "Extreme speed, Rapid response, Anti-hypersonic defense",
+                imageUrl: "https://placehold.co/300x200/1a202c/63b3ed?text=HYPERSONIC+INTERCEPTOR+CONCEPT"
+            }
+        ];
+
+        // Get elements
+        const jetSelect1 = document.getElementById('jetSelect1');
+        const jetSelect2 = document.getElementById('jetSelect2');
+        const jetSelect3 = document.getElementById('jetSelect3');
+        const compareButton = document.getElementById('compareButton');
+        const summarizeButton = document.getElementById('summarizeButton');
+        const summarizeLoader = document.getElementById('summarizeLoader');
+        const comparisonTableBody = document.getElementById('comparisonTableBody');
+        const headerCol1 = document.getElementById('headerCol1');
+        const headerCol2 = document.getElementById('headerCol2');
+        const headerCol3 = document.getElementById('headerCol3');
+        const selectedJetImagesContainer = document.getElementById('selectedJetImages');
+        const summarySection = document.getElementById('summarySection');
+        const generatedSummary = document.getElementById('generatedSummary');
+        const currentJetsContainer = document.querySelector('#current-jets .grid');
+        const historicalJetsContainer = document.querySelector('#historical-jets .grid');
+        const futureJetsContainer = document.querySelector('#future-jets .grid'); // New container for future jets
+        const modernJetDecadeFilter = document.getElementById('modernJetDecadeFilter');
+        const legacyJetDecadeFilter = document.getElementById('legacyJetDecadeFilter');
+        const futureJetDecadeFilter = document.getElementById('futureJetDecadeFilter'); // New filter for future jets
+        const ratingsListContainer = document.getElementById('ratingsList'); // New container for ratings list
+        let rangeMapSvg; // Declared globally, initialized in window.onload
+
+
+        // Create a single tooltip element for D3 charts
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip");
+
+        // Function to populate jet cards in sections based on filters
+        function populateJetCards() {
+            currentJetsContainer.innerHTML = ''; // Clear existing cards
+            historicalJetsContainer.innerHTML = ''; // Clear existing cards
+            futureJetsContainer.innerHTML = ''; // Clear existing cards for future jets
+
+            const selectedModernDecade = modernJetDecadeFilter.value;
+            const selectedLegacyDecade = legacyJetDecadeFilter.value;
+            const selectedFutureDecade = futureJetDecadeFilter.value; // Get selected future decade
+
+            const modernJets = jetData.filter(jet => jet.category === 'current' && (selectedModernDecade === 'all' || jet.decade == selectedModernDecade));
+            const legacyJets = jetData.filter(jet => jet.category === 'historical' && (selectedLegacyDecade === 'all' || jet.decade == selectedLegacyDecade));
+            const futureJets = jetData.filter(jet => jet.category === 'future' && (selectedFutureDecade === 'all' || jet.decade == selectedFutureDecade)); // Filter future jets
+
+            // Get unique decades for dropdowns
+            const allDecades = [...new Set(jetData.map(j => j.decade))].sort((a, b) => a - b);
+            const modernDecades = [...new Set(jetData.filter(j => j.category === 'current').map(j => j.decade))].sort((a, b) => a - b);
+            const legacyDecades = [...new Set(jetData.filter(j => j.category === 'historical').map(j => j.decade))].sort((a, b) => a - b);
+            const futureDecades = [...new Set(jetData.filter(j => j.category === 'future').map(j => j.decade))].sort((a, b) => a - b);
+
+            // Helper to populate a decade filter
+            const populateDecadeFilter = (filterElement, decades, selectedValue) => {
+                filterElement.innerHTML = '<option value="all">ALL DECADES</option>';
+                decades.forEach(decade => {
+                    const option = document.createElement('option');
+                    option.value = decade;
+                    option.textContent = decade + 's';
+                    filterElement.appendChild(option);
+                });
+                filterElement.value = selectedValue;
+            };
+
+            populateDecadeFilter(modernJetDecadeFilter, modernDecades, selectedModernDecade);
+            populateDecadeFilter(legacyJetDecadeFilter, legacyDecades, selectedLegacyDecade);
+            populateDecadeFilter(futureJetDecadeFilter, futureDecades, selectedFutureDecade);
+
+
+            const createJetCard = (jet) => {
+                const battleTestedStatus = jet.battleTested ? '<span class="text-green-400 font-bold">YES</span>' : '<span class="text-red-400 font-bold">NO</span>';
+                return `
+                    <div class="card">
+                        <img src="${jet.imageUrl}" alt="${jet.name}" class="w-full h-48 object-cover rounded-lg mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/400x250/1a202c/63b3ed?text=ASSET+IMAGE+ERROR';">
+                        <h4 class="text-2xl font-semibold mb-3 text-blue-400">${jet.name}</h4>
+                        <p class="text-gray-300 mb-2"><strong>ROLE:</strong> ${jet.role}</p>
+                        <p class="text-gray-300 mb-2"><strong>MANUFACTURER:</strong> ${jet.manufacturer}</p>
+                        <p class="text-gray-300 mb-2"><strong>COUNTRY OF ORIGIN:</strong> ${jet.countryOfOrigin}</p>
+                        <p class="text-gray-300 mb-2"><strong>OPERATOR NATIONS:</strong> ${jet.operatorCountries.join(', ')}</p>
+                        <p class="text-gray-300 mb-2"><strong>BATTLE TESTED:</strong> ${battleTestedStatus}</p>
+                        <p class="text-gray-300 mb-2"><strong>QUANTITY PRESENT:</strong> ${jet.quantity.toLocaleString()}</p>
+                        <p class="text-300 mb-2"><strong>FIRST FLIGHT:</strong> ${jet.firstFlight}</p>
+                        <p class="text-300 mb-2"><strong>MAX SPEED:</strong> ${jet.maxSpeed}</p>
+                        <p class="text-gray-300 mb-2"><strong>RANGE:</strong> ${jet.range}</p>
+                        <p class="text-gray-300 mb-2"><strong>MAX TAKEOFF WEIGHT:</strong> ${jet.maxTakeoffWeight}</p>
+                        <p class="text-gray-300 mb-2"><strong>UNIT COST:</strong> ${jet.unitCost}</p>
+                        <p class="text-gray-300"><strong>KEY CAPABILITY:</strong> ${jet.keyFeature}</p>
+                    </div>
+                `;
+            };
+
+            modernJets.forEach(jet => currentJetsContainer.insertAdjacentHTML('beforeend', createJetCard(jet)));
+            legacyJets.forEach(jet => historicalJetsContainer.insertAdjacentHTML('beforeend', createJetCard(jet)));
+            futureJets.forEach(jet => futureJetsContainer.insertAdjacentHTML('beforeend', createJetCard(jet)));
+        }
+
+
+        // Populate dropdowns for comparison tool
+        function populateDropdowns() {
+            const selects = [jetSelect1, jetSelect2, jetSelect3];
+            // Clear existing options first, except the default "-- SELECT ASSET --"
+            selects.forEach(select => {
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+            });
+
+            jetData.forEach(jet => {
+                const option = document.createElement('option');
+                option.value = jet.name;
+                option.textContent = jet.name;
+                selects.forEach(select => {
+                    select.appendChild(option.cloneNode(true)); // Clone to add to all selects
+                });
+            });
+        }
+
+        // Function to display selected jet images
+        function displaySelectedJetImages(selectedJets) {
+            selectedJetImagesContainer.innerHTML = ''; // Clear previous images
+
+            if (selectedJets.length === 0) {
+                return;
+            }
+
+            selectedJets.forEach(jet => {
+                const imgContainer = document.createElement('div');
+                imgContainer.classList.add('flex', 'flex-col', 'items-center', 'p-2', 'rounded-lg', 'bg-gray-700', 'shadow-sm', 'border', 'border-gray-600');
+
+                const img = document.createElement('img');
+                img.src = jet.imageUrl || 'https://placehold.co/300x200/1a202c/63b3ed?text=ASSET+PHOTO+UNAVAILABLE'; // Fallback image
+                img.alt = jet.name;
+                img.classList.add('w-48', 'h-32', 'object-cover', 'rounded-md', 'mb-2', 'border', 'border-gray-500');
+                img.onerror = function() { // Fallback if image fails to load
+                    this.onerror = null; // Prevent infinite loop
+                    this.src = 'https://placehold.co/300x200/1a202c/63b3ed?text=ASSET+PHOTO+UNAVAILABLE';
+                };
+
+                const nameSpan = document.createElement('span');
+                nameSpan.classList.add('text-sm', 'font-semibold', 'text-gray-200', 'text-center');
+                nameSpan.textContent = jet.name;
+
+                imgContainer.appendChild(img);
+                imgContainer.appendChild(nameSpan);
+                selectedJetImagesContainer.appendChild(imgContainer);
+            });
+        }
+
+        // Function to draw D3 bar charts
+        function drawBarChart(data, chartId, valueKey, label, unit) {
+            const container = d3.select(`#${chartId}Container`); // Select the container div
+            const svgElement = d3.select(`#${chartId}`); // Select the SVG element
+            svgElement.html(""); // Clear previous chart content
+
+            // Filter out data points where the value is not available or 0
+            const filteredData = data.filter(d => d[valueKey] !== undefined && d[valueKey] !== null && d[valueKey] > 0);
+
+            if (filteredData.length === 0) {
+                svgElement.append("text")
+                    .attr("x", "50%")
+                    .attr("y", "50%")
+                    .attr("text-anchor", "middle")
+                    .attr("dominant-baseline", "middle")
+                    .attr("fill", "#6b7280")
+                    .text("NO DATA FOR THIS CHART.");
+                return;
+            }
+
+            const margin = { top: 30, right: 20, bottom: 60, left: 70 };
+            const containerWidth = container.node().getBoundingClientRect().width;
+            const width = Math.max(300, containerWidth - margin.left - margin.right); // Min width for small screens
+            const height = 250 - margin.top - margin.bottom;
+
+            const svg = svgElement
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleBand()
+                .domain(filteredData.map(d => d.name))
+                .range([0, width])
+                .padding(0.3);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(filteredData, d => d[valueKey]) * 1.1]) // 10% buffer for max value
+                .range([height, 0]);
+
+            // Add Y-axis grid lines
+            svg.append("g")
+                .attr("class", "grid")
+                .call(d3.axisLeft(y).ticks(5).tickSize(-width).tickFormat(""));
+
+
+            // X-axis
+            svg.append("g")
+                .attr("class", "axis x-axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("transform", "rotate(-45)")
+                .style("text-anchor", "end");
+
+            // Y-axis
+            svg.append("g")
+                .attr("class", "axis y-axis")
+                .call(d3.axisLeft(y).ticks(5))
+                .append("text")
+                .attr("fill", "#cbd5e0") /* Lighter text for Y-axis label */
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 20)
+                .attr("x", -height / 2)
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .text(`${label} (${unit})`);
+
+            // Bars
+            svg.selectAll(".bar")
+                .data(filteredData)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d.name))
+                .attr("y", d => y(d[valueKey]))
+                .attr("width", x.bandwidth())
+                .attr("height", d => height - y(d[valueKey]))
+                .on("mouseover", function(event, d) {
+                    d3.select(this).attr("fill", "#4299e1"); // Darker blue on hover
+                    tooltip.style("opacity", 1)
+                        .html(`<strong>${d.name}</strong><br>${label}: ${d[valueKey]} ${unit}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    d3.select(this).attr("fill", "#63b3ed"); // Original blue
+                    tooltip.style("opacity", 0);
+                });
+
+            // Value labels on bars
+            svg.selectAll(".value-label")
+                .data(filteredData)
+                .enter().append("text")
+                .attr("class", "value-label")
+                .attr("x", d => x(d.name) + x.bandwidth() / 2)
+                .attr("y", d => y(d[valueKey]) - 5) // Position above the bar
+                .text(d => d[valueKey])
+                .style("fill", "#ffffff") /* Changed to white for better visibility */
+                .style("font-weight", "bold")
+                .style("pointer-events", "none"); // Prevent text from blocking mouse events on bars
+        }
+
+        // Function to draw the range map
+        let path, projection, zoomBehavior;
+        let active = d3.select(null); // Keep track of active zoom
+
+        function drawRangeMap(selectedJets) {
+            const rangeMapSvgElement = d3.select("#rangeMap");
+            if (rangeMapSvgElement.empty() || rangeMapSvgElement.node() === null) {
+                console.error("Error: #rangeMap SVG element not found or not ready.");
+                return;
+            }
+            // Assign to window.rangeMapSvg only if it's not already assigned or is invalid
+            if (!window.rangeMapSvg || window.rangeMapSvg.empty() || window.rangeMapSvg.node() === null) {
+                window.rangeMapSvg = rangeMapSvgElement;
+            }
+            window.rangeMapSvg.html(""); // Clear previous map content
+
+            const width = window.rangeMapSvg.node().getBoundingClientRect().width;
+            const height = 400; // Fixed height for map for now
+
+            window.rangeMapSvg.attr("viewBox", `0 0 ${width} ${height}`);
+
+            // Define map projection (Equirectangular for simplicity)
+            projection = d3.geoEquirectangular()
+                .scale(width / (2 * Math.PI)) // Scale to fit width
+                .translate([width / 2, height / 2]);
+
+            path = d3.geoPath().projection(projection);
+
+            // Create a group for map elements to apply zoom/pan
+            const g = window.rangeMapSvg.append("g");
+
+            // Load world map data
+            d3.json("https://unpkg.com/world-atlas@2.0.2/countries-50m.json").then(world => {
+                // Draw countries
+                g.selectAll("path")
+                    .data(topojson.feature(world, world.objects.countries).features)
+                    .enter().append("path")
+                    .attr("class", "country")
+                    .attr("d", path);
+
+                // Add a central point (e.g., near the equator) for range circles
+                const originCoords = [0, 0]; // Longitude, Latitude (Equator, Prime Meridian)
+                g.append("circle")
+                    .attr("class", "map-center-dot")
+                    .attr("cx", projection(originCoords)[0])
+                    .attr("cy", projection(originCoords)[1])
+                    .attr("r", 5); // Small dot for the origin
+
+                // Add range circles for selected jets
+                selectedJets.forEach(jet => {
+                    if (jet.rangeKms) {
+                        // Convert km to degrees for circle radius in equirectangular projection
+                        // 1 degree latitude is approx 111 km. So, radius in degrees = rangeKms / 111
+                        const radiusDegrees = jet.rangeKms / 111;
+
+                        g.append("circle")
+                            .attr("class", "range-circle")
+                            .attr("cx", projection(originCoords)[0])
+                            .attr("cy", projection(originCoords)[1])
+                            .attr("r", projection([originCoords[0] + radiusDegrees, originCoords[1]])[0] - projection(originCoords)[0]) // Scale radius based on projection
+                            .on("mouseover", function(event, d) {
+                                tooltip.style("opacity", 1)
+                                    .html(`<strong>${jet.name}</strong><br>RANGE: ${jet.range}`)
+                                    .style("left", (event.pageX + 10) + "px")
+                                    .style("top", (event.pageY - 28) + "px");
+                            })
+                            .on("mouseout", function() {
+                                tooltip.style("opacity", 0);
+                            });
+
+                        g.append("text")
+                            .attr("class", "map-label")
+                            .attr("x", projection(originCoords)[0])
+                            .attr("y", projection(originCoords)[1] - (projection([originCoords[0] + radiusDegrees, originCoords[1]])[0] - projection(originCoords)[0]) - 10) // Position above circle
+                            .text(`${jet.name} (${jet.range})`);
+                    }
+                });
+
+                // Add zoom and pan functionality
+                zoomBehavior = d3.zoom()
+                    .scaleExtent([1, 8]) // Zoom levels
+                    .on("zoom", (event) => {
+                        g.attr("transform", event.transform);
+                    });
+
+                window.rangeMapSvg.call(zoomBehavior);
+
+            }).catch(error => {
+                console.error("Error loading world map data:", error);
+                window.rangeMapSvg.append("text")
+                    .attr("x", "50%")
+                    .attr("y", "50%")
+                    .attr("text-anchor", "middle")
+                    .attr("dominant-baseline", "middle")
+                    .attr("fill", "#6b7280")
+                    .text("FAILED TO LOAD MAP DATA.");
+            });
+        }
+
+        // Function to generate comparison summary using Gemini API
+        async function generateComparisonSummary() {
+            const selectedJetNames = [
+                jetSelect1.value,
+                jetSelect2.value,
+                jetSelect3.value
+            ].filter(name => name !== "");
+
+            if (selectedJetNames.length < 2) {
+                generatedSummary.textContent = "CLASSIFIED: INSUFFICIENT ASSETS SELECTED FOR ANALYSIS. PLEASE SELECT AT LEAST TWO AIRCRAFT.";
+                summarySection.classList.remove('hidden');
+                return;
+            }
+
+            summarizeLoader.classList.remove('hidden'); // Show loader
+            summarizeButton.disabled = true; // Disable button during loading
+            generatedSummary.textContent = "INITIATING INTELLIGENCE PROTOCOL... PLEASE STAND BY."; // Clear previous summary
+            summarySection.classList.remove('hidden'); // Show summary section
+
+            const selectedJets = selectedJetNames.map(name => jetData.find(jet => jet.name === name));
+
+            let prompt = "You are an expert in military aviation. Compare the following aircraft based on their specifications and key features, highlighting their strengths, weaknesses, and ideal operational roles. Focus on Max Speed (Mach and Km/h), Range (Km), Max Takeoff Weight (Kg), Unit Cost (M USD), Country of Origin, Operator Nations, Battle Tested status, Quantity Present, Stealth Rating (1-10 where 10 is highest stealth), and Destructiveness Rating (1-10 where 10 is highest destructiveness), and any notable key features. Present the information as a concise intelligence briefing, using military-style language and tone.\n\n";
+
+            selectedJets.forEach((jet, index) => {
+                prompt += `ASSET ${index + 1} DATA:\n`;
+                prompt += `  - DESIGNATION: ${jet.name}\n`;
+                prompt += `  - ROLE: ${jet.role}\n`;
+                prompt += `  - ORIGIN: ${jet.countryOfOrigin}\n`;
+                prompt += `  - OPERATOR NATIONS: ${jet.operatorCountries.join(', ')}\n`;
+                prompt += `  - BATTLE TESTED: ${jet.battleTested ? 'YES' : 'NO'}\n`;
+                prompt += `  - QUANTITY PRESENT: ${jet.quantity.toLocaleString()}\n`;
+                prompt += `  - MAX VELOCITY: ${jet.maxSpeed}\n`;
+                prompt += `  - OPERATIONAL RANGE: ${jet.range}\n`;
+                prompt += `  - MAX GROSS WEIGHT: ${jet.maxTakeoffWeight}\n`;
+                prompt += `  - UNIT COST: ${jet.unitCost}\n`;
+                prompt += `  - STEALTH RATING: ${jet.stealthRating}/10\n`;
+                prompt += `  - DESTRUCTIVENESS RATING: ${jet.destructivenessRating}/10\n`;
+                prompt += `  - KEY CAPABILITY: ${jet.keyFeature}\n\n`;
+            });
+
+            prompt += "PROVIDE A CRITICAL ANALYSIS AND COMPARATIVE ASSESSMENT.";
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Leave this as-is; Canvas will automatically provide it.
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    generatedSummary.textContent = text;
+                } else {
+                    generatedSummary.textContent = "ERROR: INTELLIGENCE BRIEFING FAILED TO GENERATE. RETRY PROTOCOL INITIATED.";
+                    console.error("Gemini API response structure unexpected:", result);
+                }
+            } catch (error) {
+                generatedSummary.textContent = "ERROR: SECURE CONNECTION LOST. UNABLE TO RETRIEVE INTELLIGENCE BRIEFING. CHECK NETWORK AND RETRY.";
+                console.error("Error calling Gemini API:", error);
+            } finally {
+                summarizeLoader.classList.add('hidden'); // Hide loader
+                summarizeButton.disabled = false; // Re-enable button
+            }
+        }
+
+
+        // Function to update comparison table and graphs
+        function updateComparison() {
+            const selectedJetNames = [
+                jetSelect1.value,
+                jetSelect2.value,
+                jetSelect3.value
+            ].filter(name => name !== ""); // Filter out empty selections
+
+            // Clear previous table content
+            comparisonTableBody.innerHTML = '';
+            headerCol1.textContent = '';
+            headerCol2.textContent = '';
+            headerCol3.textContent = '';
+
+            // Clear previous images
+            selectedJetImagesContainer.innerHTML = '';
+
+            // Hide summary section and clear content when selections change
+            summarySection.classList.add('hidden');
+            generatedSummary.textContent = "";
+
+            // Get selected jets data
+            const selectedJets = jetData.filter(jet => selectedJetNames.includes(jet.name)); // Filter based on selected names
+
+            // Display images for selected jets
+            displaySelectedJetImages(selectedJets);
+
+            // Populate headers
+            if (selectedJets[0]) headerCol1.textContent = selectedJets[0].name.toUpperCase();
+            if (selectedJets[1]) headerCol2.textContent = selectedJets[1].name.toUpperCase();
+            if (selectedJets[2]) headerCol3.textContent = selectedJets[2].name.toUpperCase();
+
+            // Define features to compare and their display names
+            const features = [
+                { key: 'role', displayName: 'ROLE' },
+                { key: 'manufacturer', displayName: 'MANUFACTurer' },
+                { key: 'countryOfOrigin', displayName: 'COUNTRY OF ORIGIN' },
+                { key: 'operatorCountries', displayName: 'OPERATOR NATIONS', formatter: (val) => Array.isArray(val) ? val.join(', ') : val },
+                { key: 'battleTested', displayName: 'BATTLE TESTED', formatter: (val) => val ? '<span class="text-green-400 font-bold">YES</span>' : '<span class="text-red-400 font-bold">NO</span>' },
+                { key: 'quantity', displayName: 'QUANTITY PRESENT', formatter: (val) => val.toLocaleString() },
+                { key: 'firstFlight', displayName: 'FIRST FLIGHT' },
+                { key: 'maxSpeed', displayName: 'MAX SPEED' },
+                { key: 'range', displayName: 'RANGE' },
+                { key: 'armament', displayName: 'ARMAMENT' },
+                { key: 'crew', displayName: 'CREW' },
+                { key: 'engineThrust', displayName: 'ENGINE THRUST' },
+                { key: 'length', displayName: 'LENGTH' },
+                { key: 'wingspan', displayName: 'WINGSPAN' },
+                { key: 'maxTakeoffWeight', displayName: 'MAX TAKEOFF WEIGHT' },
+                { key: 'unitCost', displayName: 'UNIT COST' },
+                { key: 'keyFeature', displayName: 'KEY CAPABILITY' } // Removed stealth/destructiveness here
+            ];
+
+            if (selectedJetNames.length === 0) {
+                comparisonTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500">SELECT ASSETS FOR ANALYSIS.</td></tr>';
+            } else {
+                features.forEach(feature => {
+                    const row = document.createElement('tr');
+                    row.classList.add('table-row'); // Apply alternating row background
+
+                    const featureCell = document.createElement('td');
+                    featureCell.classList.add('py-3', 'px-4', 'border-b', 'border-gray-600', 'font-medium', 'text-gray-200');
+                    featureCell.textContent = feature.displayName;
+                    row.appendChild(featureCell);
+
+                    selectedJets.forEach(jet => {
+                        const dataCell = document.createElement('td');
+                        dataCell.classList.add('py-3', 'px-4', 'border-b', 'border-gray-600', 'text-gray-300');
+                        // Use formatter if available, otherwise default to direct value or 'N/A'
+                        dataCell.innerHTML = feature.formatter ? feature.formatter(jet[feature.key]) : (jet[feature.key] || 'N/A');
+                        row.appendChild(dataCell);
+                    });
+
+                    // Fill empty cells if fewer than 3 jets are selected
+                    for (let i = selectedJets.length; i < 3; i++) {
+                        const emptyCell = document.createElement('td');
+                        emptyCell.classList.add('py-3', 'px-4', 'border-b', 'border-gray-600', 'text-gray-500');
+                        emptyCell.textContent = 'N/A';
+                        row.appendChild(emptyCell);
+                    }
+                    comparisonTableBody.appendChild(row);
+                });
+            }
+
+            // Draw charts
+            drawBarChart(selectedJets, 'speedChart', 'maxSpeedMach', 'MAX SPEED', 'MACH');
+            drawBarChart(selectedJets, 'rangeChart', 'rangeKms', 'RANGE', 'KM');
+            drawBarChart(selectedJets, 'weightChart', 'maxTakeoffWeightKgs', 'MAX TAKEOFF WEIGHT', 'KG');
+            drawBarChart(selectedJets, 'costChart', 'unitCostMillionUsd', 'UNIT COST', 'M USD');
+
+            // Draw map and update ratings display
+            drawRangeMap(selectedJets);
+            updateRatingsDisplay(selectedJets); // Call the new function to update ratings display
+        }
+
+        // Function to update the new ratings display section
+        function updateRatingsDisplay(selectedJets) {
+            ratingsListContainer.innerHTML = ''; // Clear previous ratings
+
+            if (selectedJets.length === 0) {
+                ratingsListContainer.innerHTML = '<p class="text-center text-gray-500">SELECT JETS TO VIEW CAPABILITY RATINGS.</p>';
+                return;
+            }
+
+            selectedJets.forEach(jet => {
+                const ratingItemHtml = `
+                    <div class="rating-item">
+                        <span class="font-semibold text-blue-300">${jet.name.toUpperCase()}</span>
+                        <div>
+                            <span class="mr-4">Stealth: <span class="font-bold">${jet.stealthRating !== undefined ? `${jet.stealthRating}/10` : 'N/A'}</span></span>
+                            <span>Destructiveness: <span class="font-bold">${jet.destructivenessRating !== undefined ? `${jet.destructivenessRating}/10` : 'N/A'}</span></span>
+                        </div>
+                    </div>
+                `;
+                ratingsListContainer.insertAdjacentHTML('beforeend', ratingItemHtml);
+            });
+        }
+
+
+        // Event listener for compare button
+        compareButton.addEventListener('click', updateComparison);
+        // Event listener for summarize button
+        summarizeButton.addEventListener('click', generateComparisonSummary);
+
+        // Event listeners for decade filters
+        modernJetDecadeFilter.addEventListener('change', populateJetCards);
+        legacyJetDecadeFilter.addEventListener('change', populateJetCards);
+        futureJetDecadeFilter.addEventListener('change', populateJetCards);
+
+        // Optional: Update table immediately if selections change without clicking button
+        jetSelect1.addEventListener('change', updateComparison);
+        jetSelect2.addEventListener('change', updateComparison);
+        jetSelect3.addEventListener('change', updateComparison);
+
+        // Initial setup when the window loads
+        window.onload = function() {
+            populateDropdowns();
+            populateJetCards();
+            updateComparison(); // Initial call to draw everything
+        };
+
+        // Resize charts and map on window resize
+        window.addEventListener('resize', () => {
+            const selectedJetNames = [jetSelect1.value, jetSelect2.value, jetSelect3.value].filter(name => name !== "");
+            const selectedJets = jetData.filter(jet => selectedJetNames.includes(jet.name)); // Ensure selectedJets is correctly filtered
+            updateComparison(); // Re-run the update to redraw charts and map with new dimensions
+        });
+    </script>
 </body>
 </html>
